@@ -1,0 +1,20 @@
+{
+  "name": "solo-se-que-hundi-tu-acorazado",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "tool": "bun ./tooling/run.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/yargs": "^17.0.33"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "snarkjs": "^0.7.5",
+    "yargs": "^18.0.0"
+  }
+}
