@@ -1,6 +1,11 @@
 import type { AddCmd } from '../cli'
-import { $ } from '../utils';
+import { $, baseDir } from '../utils';
+import { join } from 'node:path';
 
+export function r1csFilePath() {
+    const base = baseDir();
+    return join(base, 'out', 'main.r1cs');
+}
 
 async function compile() {
     await $`mkdir -p out`;
