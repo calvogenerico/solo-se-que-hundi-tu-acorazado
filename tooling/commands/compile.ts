@@ -5,6 +5,7 @@ import { $ } from '../utils';
 async function compile() {
     await $`mkdir -p out`;
     await $`circom circuits/main.circom --r1cs --wasm --sym -o out`
+    await $`echo '{}' > out/main_js/package.json`
 }
 
 

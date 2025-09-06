@@ -2,13 +2,17 @@ import { hideBin } from 'yargs/helpers';
 import { buildCli } from './cli'
 import { addCompile } from './commands/compile'
 import { addClean } from './commands/clean';
+import { addGenerateInput } from './commands/generate-input';
+import { addWitness } from './commands/witness';
 
 
 const cli = buildCli();
 
 const allCommands = [
     addCompile,
-    addClean
+    addClean,
+    addGenerateInput,
+    addWitness
 ];
 
 for (const addCmd of allCommands) {

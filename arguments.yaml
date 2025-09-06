@@ -1,0 +1,4 @@
+circuit:
+  inputs:
+    a: 1
+    b: '1'
