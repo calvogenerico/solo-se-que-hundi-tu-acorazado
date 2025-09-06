@@ -1,8 +1,9 @@
-import {$} from 'bun'
 import type { AddCmd } from '../cli'
+import { $ } from '../utils';
+
 
 async function compile() {
-    await $`echo from compile!`
+    await $`circom circuits/main.circom --r1cs --wasm --sym -o out`
 }
 
 
