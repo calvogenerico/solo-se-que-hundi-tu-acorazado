@@ -40,7 +40,7 @@ async function generateInput() {
 }
 
 export const addGenerateInput: AddCmd = (cli) => cli.command(
-    'generate-input', 
+    'input', 
     'generates input for main circuit',
     {},
     generateInput
