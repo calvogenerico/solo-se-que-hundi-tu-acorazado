@@ -12,7 +12,7 @@ function rawZkeyFilePath() {
 }
 
 async function zkeyGen() {
-    const r1csPath = r1csFilePath();
+    const r1csPath = r1csFilePath("");
     const ptauPath = ptauFilePath();
 
     if (!await exists(r1csPath)) {

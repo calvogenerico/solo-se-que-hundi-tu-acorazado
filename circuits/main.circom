@@ -1,6 +1,6 @@
 pragma circom 2.2.2;
 
-template Batalla () {
+template Battle () {
     signal input a;
     signal input b;
     signal output c;
@@ -8,4 +8,4 @@ template Batalla () {
     c <== a + b;
 }
 
-component main {public [a]} = Batalla();
+component main {public [a]} = Battle();
