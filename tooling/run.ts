@@ -9,6 +9,7 @@ import { addZkeyGen } from './commands/zkey-generate.ts';
 import { addZkeyContrib } from "./commands/zkey-contribute.ts";
 import { addZkeyFinish } from "./commands/zkey-finish.ts";
 import { addVkeyGen } from "./commands/vkey-generate.ts";
+import { addProve } from "./commands/prove.ts";
 
 
 const cli = buildCli();
@@ -22,7 +23,8 @@ const allCommands = [
     addZkeyGen,
     addZkeyContrib,
     addZkeyFinish,
-    addVkeyGen
+    addVkeyGen,
+    addProve
 ];
 
 for (const addCmd of allCommands) {

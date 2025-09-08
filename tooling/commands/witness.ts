@@ -5,9 +5,9 @@ import { exists } from 'node:fs/promises';
 import { inputsFilePath } from "./generate-input";
 import { circuitOutDir } from "./compile.ts";
 
-export function witnessFilePath() {
-    const base = baseDir();
-    return join(base, 'out', 'main.wtns');
+export function witnessFilePath(circuitPath: string) {
+    const base = circuitOutDir(circuitPath);
+    return join(base, 'out.wtns');
 }
 
 async function witness(circuitPath: string) {
@@ -25,7 +25,7 @@ async function witness(circuitPath: string) {
         throw new Error(`Inputs not found under "${inputsPath}". Maybe you are missing the generate inputs step.`);
     }
 
-    const outPath = witnessFilePath();
+    const outPath = witnessFilePath(circuitPath);
     await $`node generate_witness.js main.wasm ${inputsPath} ${outPath}`.cwd(jsDir);
     console.log(`Witness file correctly generated at: ${outPath}`);
 }
