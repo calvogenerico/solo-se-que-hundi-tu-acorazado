@@ -6,12 +6,12 @@ import { zkeyFinishedFileName } from "./zkey-finish.ts";
 import { witnessFilePath } from "./witness.ts";
 import { exists } from "node:fs/promises";
 
-function proofFilePath(circuitPath: string): string {
+export function proofFilePath(circuitPath: string): string {
     const dir = circuitOutDir(circuitPath);
     return join(dir, 'out.proof');
 }
 
-function publicArgsFilePath(circuitPath: string): string {
+export function publicArgsFilePath(circuitPath: string): string {
     const dir = circuitOutDir(circuitPath);
     return join(dir, 'out-public.json');
 }
