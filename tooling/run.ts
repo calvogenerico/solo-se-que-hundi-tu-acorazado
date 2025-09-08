@@ -6,6 +6,7 @@ import { addGenerateMainInput } from './commands/generate-input';
 import { addWitness } from './commands/witness';
 import { addDownloadPtau } from './commands/download-ptau';
 import { addZkeyGen } from './commands/generate-zkey';
+import { addZkeyContrib } from "./commands/contribute-zkey.ts";
 
 
 const cli = buildCli();
@@ -16,7 +17,8 @@ const allCommands = [
     addGenerateMainInput,
     addWitness,
     addDownloadPtau,
-    addZkeyGen
+    addZkeyGen,
+    addZkeyContrib
 ];
 
 for (const addCmd of allCommands) {
