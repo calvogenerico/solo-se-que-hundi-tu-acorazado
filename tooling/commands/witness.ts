@@ -1,18 +1,20 @@
 import type { AddCmd } from "../cli";
 import { baseDir, $ } from "../utils";
-import { join } from 'node:path';
-import { exists }  from 'node:fs/promises';
+import { join, parse } from 'node:path';
+import { exists } from 'node:fs/promises';
 import { inputsFilePath } from "./generate-input";
+import { circuitOutDir } from "./compile.ts";
 
 export function witnessFilePath() {
     const base = baseDir();
     return join(base, 'out', 'main.wtns');
 }
 
-async function witness() {
-    const base = baseDir();
-    const jsDir = join(base, 'out', 'main_js');
-    const inputsPath = inputsFilePath();
+async function witness(circuitPath: string) {
+    const base = circuitOutDir(circuitPath);
+    const parsed = parse(circuitPath);
+    const jsDir = join(base, `${parsed.name}_js`);
+    const inputsPath = inputsFilePath(circuitPath);
 
 
     if (!await exists(jsDir)) {
@@ -28,4 +30,13 @@ async function witness() {
     console.log(`Witness file correctly generated at: ${outPath}`);
 }
 
-export const addWitness: AddCmd = (cli) => cli.command('witness', 'generates witnes', {}, witness)
+export const addWitness: AddCmd = (cli) => cli.command(
+    'witness [circuitPath]',
+    'generates witness',
+    yargs => yargs.positional('circuitPath', {
+        type: 'string',
+        default: 'circuits/main.circom',
+        demandOption: false
+    }),
+    (yargs) => witness(yargs.circuitPath)
+)

@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "tool": "bun ./tooling/run.ts"
+    "tool": "bun ./tooling/run.ts",
+    "tool:input": "bun ./tooling/run.ts input"
   },
   "devDependencies": {
     "@types/bun": "latest",

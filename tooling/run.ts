@@ -2,7 +2,7 @@ import { hideBin } from 'yargs/helpers';
 import { buildCli } from './cli'
 import { addCompile } from './commands/compile'
 import { addClean } from './commands/clean';
-import { addGenerateInput } from './commands/generate-input';
+import { addGenerateMainInput } from './commands/generate-input';
 import { addWitness } from './commands/witness';
 import { addDownloadPtau } from './commands/download-ptau';
 import { addZkeyGen } from './commands/generate-zkey';
@@ -13,7 +13,7 @@ const cli = buildCli();
 const allCommands = [
     addCompile,
     addClean,
-    addGenerateInput,
+    addGenerateMainInput,
     addWitness,
     addDownloadPtau,
     addZkeyGen

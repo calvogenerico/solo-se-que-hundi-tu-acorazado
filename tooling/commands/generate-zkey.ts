@@ -1,18 +1,18 @@
 import { $ } from "bun";
 import type { AddCmd } from "../cli";
-import { r1csFilePath } from "./compile";
+import { circuitOutDir, r1csFilePath } from "./compile";
 import { ptauFilePath } from "./download-ptau";
-import { baseDir } from "../utils";
-import { join } from 'node:path';
+import { join, parse } from 'node:path';
 import { exists } from 'node:fs/promises'
 
-function rawZkeyFilePath() {
-    const base = baseDir()
-    return join(base, 'out', 'main.000.zkey');
+function rawZkeyFilePath(circuitPath: string) {
+    const base = circuitOutDir(circuitPath);
+    const parsed = parse(circuitPath);
+    return join(base, `${parsed.name}.000.zkey`);
 }
 
-async function zkeyGen() {
-    const r1csPath = r1csFilePath("");
+async function zkeyGen(circuitPath: string) {
+    const r1csPath = r1csFilePath(circuitPath);
     const ptauPath = ptauFilePath();
 
     if (!await exists(r1csPath)) {
@@ -23,13 +23,20 @@ async function zkeyGen() {
         throw new Error(`Missing ptau file at "${ptauPath}". Maybe download ptau step is missing step is missing.`);
     }
 
-    const out = rawZkeyFilePath();
+    const out = rawZkeyFilePath(circuitPath);
+    console.log(out);
     await $`bun snarkjs groth16 setup ${r1csPath} ${ptauPath} ${out}`;
 }
 
 export const addZkeyGen: AddCmd = (cli) => cli.command(
-    'zkey-gen',
+    'zkey-gen [circuitPath]',
     'Generates zkey file',
-    {},
-    zkeyGen
+    (yargs) => yargs.positional('circuitPath', {
+        type: 'string',
+        default: 'circuits/main.circom',
+        demandOption: false
+    }),
+    async (yargs) => {
+        return zkeyGen(yargs.circuitPath)
+    }
 )

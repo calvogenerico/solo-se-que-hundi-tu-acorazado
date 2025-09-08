@@ -1,9 +1,10 @@
 import { $, baseDir } from "../utils";
 import YAML from 'yaml';
 import { readFile, writeFile } from 'node:fs/promises';
-import { join } from "node:path";
+import { join, parse } from "node:path";
 import type { AddCmd } from "../cli";
 import { z } from 'zod';
+import { circuitOutDir } from "./compile.ts";
 
 const argsSchema = z.object({
     circuit: z.object({
@@ -14,12 +15,21 @@ const argsSchema = z.object({
     })
 });
 
-export function inputsFilePath() {
-    const base = baseDir();
-    return join(base, 'out', 'inputs.json');
+export function inputsFilePath(circuitPath: string) {
+    const base = circuitOutDir(circuitPath);
+    return join(base, 'inputs.json');
 }
 
-async function generateInput() {
+export async function saveInputs(circuitPath: string, inputs: unknown): Promise<string> {
+    const inputsPath = inputsFilePath(circuitPath);
+    const parsed = parse(inputsPath)
+    const inputsFileContent = JSON.stringify(inputs, null, 2);
+    await $`mkdir -p ${parsed.dir}`;
+    await writeFile(inputsPath, inputsFileContent);
+    return inputsPath;
+}
+
+async function generateMainInputs() {
     const base = baseDir();
     const file = await readFile(join(base, 'arguments.yaml'));
     const obj = YAML.parse(file.toString());
@@ -28,20 +38,19 @@ async function generateInput() {
 
     const { a, b } = parsed.circuit.inputs;
 
-    const inputsFileContent = JSON.stringify({
+    const inputsFileContent = {
         a: a.toString(),
         b: b.toString()
-    });
+    };
 
-
-    const inputsPath = inputsFilePath();
-    await writeFile(inputsPath, inputsFileContent);
-    console.log(`Inputs generated at: ${inputsPath}`);
+    const circuitPath = 'circuits/main.circom';
+    const outPath = await saveInputs(circuitPath, inputsFileContent);
+    console.log(`Inputs generated at: ${outPath}`);
 }
 
-export const addGenerateInput: AddCmd = (cli) => cli.command(
+export const addGenerateMainInput: AddCmd = (cli) => cli.command(
     'input', 
     'generates input for main circuit',
     {},
-    generateInput
+    generateMainInputs
 )
