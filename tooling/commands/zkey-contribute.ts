@@ -39,18 +39,6 @@ async function zkeyContrib(circuitPath: string, givenEntropy?: string, contribut
 
     await $`bun snarkjs zkc ${lastZkey} ${nextZkey} -e=${entropy} -n=${contributor}`;
     console.log(`Contribution saved at: ${nextZkey}`);
-
-    // if (!await exists(r1csPath)) {
-    //     throw new Error(`Missing r1cs file at "${r1csPath}". Maybe compile step is missing.`);
-    // }
-    //
-    // if (!await exists(ptauPath)) {
-    //     throw new Error(`Missing ptau file at "${ptauPath}". Maybe download ptau step is missing step is missing.`);
-    // }
-    //
-    // const out = rawZkeyFilePath(circuitPath);
-    // console.log(out);
-    // await $`bun snarkjs groth16 setup ${r1csPath} ${ptauPath} ${out}`;
 }
 
 export const addZkeyContrib: AddCmd = (cli) => cli.command(
