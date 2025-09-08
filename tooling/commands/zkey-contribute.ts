@@ -6,7 +6,7 @@ import { randomBytes } from "node:crypto";
 
 const zkeyPattern = /(\d\d\d).zkey$/;
 
-async function lastZkeyFilePath(circuitPath: string): Promise<string> {
+export async function lastZkeyFilePath(circuitPath: string): Promise<string> {
     const base = circuitOutDir(circuitPath);
     const files = await $`ls`.cwd(base).text().then(dirs => dirs.trim().split('\n').map(dir => dir.trim()));
     const zKeys = files.filter(entry => zkeyPattern.test(entry)).toSorted();
