@@ -1,0 +1,3 @@
+- Create board
+- Check if shot is a hit
+- Commit board

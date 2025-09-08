@@ -3,19 +3,16 @@ import { baseDir, $ } from "../utils";
 import { join, parse } from 'node:path';
 import { exists } from 'node:fs/promises';
 import { inputsFilePath } from "./generate-input";
-import { circuitOutDir } from "./compile.ts";
+import { circuitOutDir, jsDirName, wasmFilePath } from "./compile.ts";
 
 export function witnessFilePath(circuitPath: string) {
     const base = circuitOutDir(circuitPath);
     return join(base, 'out.wtns');
 }
 
-async function witness(circuitPath: string) {
-    const base = circuitOutDir(circuitPath);
-    const parsed = parse(circuitPath);
-    const jsDir = join(base, `${parsed.name}_js`);
+export async function witness(circuitPath: string) {
+    const jsDir = jsDirName(circuitPath);
     const inputsPath = inputsFilePath(circuitPath);
-
 
     if (!await exists(jsDir)) {
         throw new Error(`Directory "${jsDir}" does not exist. Maybe you are missing the compile step.`);
@@ -26,7 +23,7 @@ async function witness(circuitPath: string) {
     }
 
     const outPath = witnessFilePath(circuitPath);
-    await $`node generate_witness.js main.wasm ${inputsPath} ${outPath}`.cwd(jsDir);
+    await $`node generate_witness.js ${wasmFilePath(circuitPath)} ${inputsPath} ${outPath}`.cwd(jsDir);
     console.log(`Witness file correctly generated at: ${outPath}`);
 }
 

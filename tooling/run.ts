@@ -11,6 +11,7 @@ import { addZkeyFinish } from "./commands/zkey-finish.ts";
 import { addVkeyGen } from "./commands/vkey-generate.ts";
 import { addProve } from "./commands/prove.ts";
 import { addVerify } from "./commands/verify.ts";
+import { addRunTest } from "./commands/run-test.ts";
 
 
 const cli = buildCli();
@@ -26,7 +27,8 @@ const allCommands = [
     addZkeyFinish,
     addVkeyGen,
     addProve,
-    addVerify
+    addVerify,
+    addRunTest
 ];
 
 for (const addCmd of allCommands) {
