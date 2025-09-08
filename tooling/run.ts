@@ -8,6 +8,7 @@ import { addDownloadPtau } from './commands/download-ptau';
 import { addZkeyGen } from './commands/zkey-generate.ts';
 import { addZkeyContrib } from "./commands/zkey-contribute.ts";
 import { addZkeyFinish } from "./commands/zkey-finish.ts";
+import { addVkeyGen } from "./commands/vkey-generate.ts";
 
 
 const cli = buildCli();
@@ -20,7 +21,8 @@ const allCommands = [
     addDownloadPtau,
     addZkeyGen,
     addZkeyContrib,
-    addZkeyFinish
+    addZkeyFinish,
+    addVkeyGen
 ];
 
 for (const addCmd of allCommands) {

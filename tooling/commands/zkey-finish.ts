@@ -15,7 +15,6 @@ async function zkeyFinish(circuitPath: string, givenEntropy?: string, contributo
     const input = await lastZkeyFilePath(circuitPath);
     const out = zkeyFinishedFileName(circuitPath);
 
-
     const entropy = givenEntropy
         ? Buffer.from(givenEntropy).toHex()
         : randomBytes(32).toHex();
