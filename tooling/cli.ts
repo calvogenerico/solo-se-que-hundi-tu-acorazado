@@ -1,10 +1,21 @@
 import yargs from 'yargs';
+import { $ } from "bun";
 
 
 export function buildCli() {
     return yargs()
         .scriptName('tool')
         .help()
+        .fail(function (msg, err, yargs) {
+            if (err instanceof $.ShellError) {
+                process.exit(1);
+            }
+            if (err) throw err // preserve stack
+            console.error(yargs.help())
+            console.log('----');
+            console.error('Msg', msg);
+            process.exit(1)
+        })
         .strict();
 }
 
