@@ -4,7 +4,7 @@ include "../circuits/sea.circom";
 include "../circuits/common.circom";
 
 template Test() {
-    // Fail when hSize is smaller than BIG_SHIP_SIZE
+    // Error out when ship1 is not the right size
 
     Point() p1;
     p1.x <== 0;

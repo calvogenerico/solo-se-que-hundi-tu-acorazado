@@ -28,6 +28,15 @@ template ShipInBounds(hSize, vSize) {
     lastHorizontalIfHorizontal + lastVerticalIfVertical === 1;
 }
 
+template AssertBit() {
+    input signal in;
+    
+    signal isZero <== IsEqual()([in, 0]);
+    signal isOne <== IsEqual()([in, 1]);
+
+    isZero + isOne === 1;
+}
+
 
 template ValidateBoard(hSize, vSize) {
     assert(hSize > BIG_SHIP_SIZE());
@@ -38,6 +47,9 @@ template ValidateBoard(hSize, vSize) {
 
     smallShip.size === SMALL_SHIP_SIZE();
     bigShip.size === BIG_SHIP_SIZE();
+
+    AssertBit()(smallShip.isVertical); 
+    AssertBit()(bigShip.isVertical);
 
     ShipInBounds(hSize, vSize)(smallShip);
     ShipInBounds(hSize, vSize)(bigShip);

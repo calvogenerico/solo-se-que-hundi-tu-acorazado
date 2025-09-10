@@ -6,11 +6,21 @@ import type { AddCmd } from "../cli";
 import { z } from 'zod';
 import { circuitOutDir } from "./compile.ts";
 
-const argsSchema = z.object({
+export const argsSchema = z.object({
     circuit: z.object({
         inputs: z.object({
-            a: z.coerce.bigint(),
-            b: z.coerce.bigint(),
+            smallShipStartX: z.coerce.bigint(),
+            smallShipStartY: z.coerce.bigint(),
+            smallShipIsVertical: z.coerce.bigint(),
+            smallShipSize: z.coerce.bigint(),
+            bigShipStartX: z.coerce.bigint(),
+            bigShipStartY: z.coerce.bigint(),
+            bigShipIsVertical: z.coerce.bigint(),
+            bigShipSize: z.coerce.bigint(),
+            hSize: z.coerce.bigint(),
+            vSize: z.coerce.bigint(),
+            hitX: z.coerce.bigint(),
+            hitY: z.coerce.bigint(),
         })
     })
 });
@@ -36,11 +46,34 @@ async function generateMainInputs() {
 
     const parsed = argsSchema.parse(obj);
 
-    const { a, b } = parsed.circuit.inputs;
+    const {
+        smallShipStartX,
+        smallShipStartY,
+        smallShipIsVertical,
+        smallShipSize,
+        bigShipStartX,
+        bigShipStartY,
+        bigShipIsVertical,
+        bigShipSize,
+        hSize,
+        vSize,
+        hitX,
+        hitY
+    } = parsed.circuit.inputs;
 
     const inputsFileContent = {
-        a: a.toString(),
-        b: b.toString()
+        smallShipStartX,
+        smallShipStartY,
+        smallShipIsVertical,
+        smallShipSize,
+        bigShipStartX,
+        bigShipStartY,
+        bigShipIsVertical,
+        bigShipSize,
+        hSize,
+        vSize,
+        hitX,
+        hitY
     };
 
     const circuitPath = 'circuits/main.circom';
