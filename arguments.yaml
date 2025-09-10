@@ -10,8 +10,8 @@ circuit:
     bigShipIsVertical: 0
     bigShipSize: 4
 
-    hSize: 12
     vSize: 12
+    hSize: 12
 
     boardCommitment: 19851601164978595064910600514356114892428070917792260872497043985742628256314
 

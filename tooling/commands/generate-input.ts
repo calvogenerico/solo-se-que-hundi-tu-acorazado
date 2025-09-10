@@ -55,25 +55,21 @@ async function generateMainInputs() {
         bigShipStartY,
         bigShipIsVertical,
         bigShipSize,
-        hSize,
-        vSize,
         hitX,
         hitY
     } = parsed.circuit.inputs;
 
     const inputsFileContent = {
-        smallShipStartX,
-        smallShipStartY,
-        smallShipIsVertical,
-        smallShipSize,
-        bigShipStartX,
-        bigShipStartY,
-        bigShipIsVertical,
-        bigShipSize,
-        hSize,
-        vSize,
-        hitX,
-        hitY
+        smallShipStartX: smallShipStartX.toString(),
+        smallShipStartY: smallShipStartY.toString(),
+        smallShipIsVertical: smallShipIsVertical.toString(),
+        smallShipSize: smallShipSize.toString(),
+        bigShipStartX: bigShipStartX.toString(),
+        bigShipStartY: bigShipStartY.toString(),
+        bigShipIsVertical: bigShipIsVertical.toString(),
+        bigShipSize: bigShipSize.toString(),
+        hitX: hitX.toString(),
+        hitY: hitY.toString()
     };
 
     const circuitPath = 'circuits/main.circom';
