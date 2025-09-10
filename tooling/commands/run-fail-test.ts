@@ -5,7 +5,7 @@ import { saveInputs } from "./generate-input.ts";
 import { witness } from "./witness.ts";
 import { $ } from "bun";
 
-async function runFailTest(testFile: string) {
+export async function runFailTest(testFile: string) {
     try {
         await compile(join(testFile));
     } catch (e) {

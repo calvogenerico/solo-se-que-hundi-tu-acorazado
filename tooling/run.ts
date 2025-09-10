@@ -14,6 +14,7 @@ import { addVerify } from "./commands/verify.ts";
 import { addRunTest } from "./commands/run-test.ts";
 import { addRunErrorTest } from "./commands/run-error-test.ts";
 import { addRunFailTest } from "./commands/run-fail-test.ts";
+import { addRunAllTests } from "./commands/test-all.ts";
 
 
 const cli = buildCli();
@@ -33,6 +34,7 @@ const allCommands = [
     addRunTest,
     addRunFailTest,
     addRunErrorTest,
+    addRunAllTests
 ];
 
 for (const addCmd of allCommands) {
