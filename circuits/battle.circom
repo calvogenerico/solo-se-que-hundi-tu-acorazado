@@ -3,18 +3,7 @@ pragma circom 2.2.2;
 include "circomlib/circuits/comparators.circom";
 include "./sum.circom";
 include "./zero-pad.circom";
-
-
-bus Point() {
-    signal x;
-    signal y;
-}
-
-bus Ship() {
-    Point() start;
-    signal isVertical;
-    signal size;
-}
+include "./common.circom";
                                                                                                                  
 template HitBoat(hSize, vSize, MaxBoatSize) {
     input Ship ship;

@@ -30,7 +30,6 @@ export function wasmFilePath(circuitPath: string): string {
 
 export async function compile(circuitPath: string) {
     const outDir = circuitOutDir(circuitPath);
-    const parsed = parse(circuitPath);
 
     await $`mkdir -p ${outDir}`;
     await $`circom ${circuitPath} -l node_modules --r1cs --wasm --sym -o ${outDir}`

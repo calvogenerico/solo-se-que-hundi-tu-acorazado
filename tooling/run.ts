@@ -12,6 +12,8 @@ import { addVkeyGen } from "./commands/vkey-generate.ts";
 import { addProve } from "./commands/prove.ts";
 import { addVerify } from "./commands/verify.ts";
 import { addRunTest } from "./commands/run-test.ts";
+import { addRunErrorTest } from "./commands/run-error-test.ts";
+import { addRunFailTest } from "./commands/run-fail-test.ts";
 
 
 const cli = buildCli();
@@ -28,13 +30,13 @@ const allCommands = [
     addVkeyGen,
     addProve,
     addVerify,
-    addRunTest
+    addRunTest,
+    addRunFailTest,
+    addRunErrorTest,
 ];
 
 for (const addCmd of allCommands) {
     addCmd(cli);
 }
-
-
 
 await cli.parseAsync(hideBin(process.argv));
