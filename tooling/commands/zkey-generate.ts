@@ -1,4 +1,4 @@
-import { $ } from "bun";
+import { $, Glob } from "bun";
 import type { AddCmd } from "../cli";
 import { circuitOutDir, r1csFilePath } from "./compile";
 import { ptauFilePath } from "./download-ptau";
@@ -11,7 +11,15 @@ function rawZkeyFilePath(circuitPath: string) {
     return join(base, `${parsed.name}.000.zkey`);
 }
 
-async function zkeyGen(circuitPath: string) {
+export async function removeOldZkeyFiles(circuitPath: string) {
+    const base = circuitOutDir(circuitPath);
+    const glob = new Glob(join(base, '*.zkey'));
+    for await (const filePath of glob.scan()) {
+        await $`rm ${filePath}`;
+    }
+}
+
+export async function zkeyGen(circuitPath: string) {
     const r1csPath = r1csFilePath(circuitPath);
     const ptauPath = ptauFilePath();
 
@@ -24,8 +32,9 @@ async function zkeyGen(circuitPath: string) {
     }
 
     const out = rawZkeyFilePath(circuitPath);
-    console.log(out);
+    await removeOldZkeyFiles(circuitPath);
     await $`bun snarkjs groth16 setup ${r1csPath} ${ptauPath} ${out}`;
+    console.log(`Zkey generated at: ${out}`);
 }
 
 export const addZkeyGen: AddCmd = (cli) => cli.command(

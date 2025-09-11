@@ -16,6 +16,8 @@ import { addRunErrorTest } from "./commands/run-error-test.ts";
 import { addRunFailTest } from "./commands/run-fail-test.ts";
 import { addRunAllTests } from "./commands/test-all.ts";
 import { addHashBoard } from "./commands/hash-board.ts";
+import { addRunCmd } from "./commands/run-cmd.ts";
+import { addFullRunCmd } from "./commands/full-run.ts";
 
 
 const cli = buildCli();
@@ -36,7 +38,9 @@ const allCommands = [
     addRunFailTest,
     addRunErrorTest,
     addRunAllTests,
-    addHashBoard
+    addHashBoard,
+    addRunCmd,
+    addFullRunCmd
 ];
 
 for (const addCmd of allCommands) {

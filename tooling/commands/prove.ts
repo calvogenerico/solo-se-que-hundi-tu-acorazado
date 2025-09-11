@@ -16,7 +16,7 @@ export function publicArgsFilePath(circuitPath: string): string {
     return join(dir, 'out-public.json');
 }
 
-async function proveCircuit(circuitPath: string) {
+export async function proveCircuit(circuitPath: string) {
     const zkey = zkeyFinishedFileName(circuitPath);
     const witness = witnessFilePath(circuitPath);
 
@@ -31,7 +31,9 @@ async function proveCircuit(circuitPath: string) {
     const outProof = proofFilePath(circuitPath);
     const outPublicArgs = publicArgsFilePath(circuitPath);
     await $`bun snarkjs g16p ${zkey} ${witness} ${outProof} ${outPublicArgs}`
-    console.log(`Success! Proof generated at ${outProof}, and public args at:  ${outPublicArgs}`);
+    console.log('\nSuccess! Proof generated.');
+    console.log(`proof: ${outProof}`);
+    console.log(`pub  : ${outPublicArgs}`);
 }
 
 export const addProve: AddCmd = (cli) => cli.command(

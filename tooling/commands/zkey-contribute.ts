@@ -30,7 +30,7 @@ function nextZkeyFileName(current: string) {
     return join(parsed.dir, `${parsed.name.replace(match[1]!, formated)}.zkey`)
 }
 
-async function zkeyContrib(circuitPath: string, givenEntropy?: string, contributorName?: string) {
+export async function zkeyContrib(circuitPath: string, givenEntropy?: string, contributorName?: string) {
     const lastZkey = await lastZkeyFilePath(circuitPath);
     const nextZkey = nextZkeyFileName(lastZkey);
 

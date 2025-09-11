@@ -11,7 +11,7 @@ export function zkeyFinishedFileName(circuitPath: string) {
     return join(base, `${parsed.name}.last.zkey`)
 }
 
-async function zkeyFinish(circuitPath: string, givenEntropy?: string, contributorName?: string) {
+export async function zkeyFinish(circuitPath: string, givenEntropy?: string, contributorName?: string) {
     const input = await lastZkeyFilePath(circuitPath);
     const out = zkeyFinishedFileName(circuitPath);
 

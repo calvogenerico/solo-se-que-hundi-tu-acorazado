@@ -40,7 +40,7 @@ export async function saveInputs(circuitPath: string, inputs: unknown): Promise<
     return inputsPath;
 }
 
-async function generateMainInputs() {
+export async function generateMainInputs() {
     const base = baseDir();
     const file = await readFile(join(base, 'arguments.yaml'));
     const obj = YAML.parse(file.toString());
