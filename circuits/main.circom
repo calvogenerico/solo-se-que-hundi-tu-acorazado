@@ -4,7 +4,6 @@ include "./common.circom";
 include "./sea.circom";
 include "./hash-board.circom";
 include "./battle.circom";
-// include "circomlib/circuits/comparators.circom";
 
 template TryToHit (
     hSize,

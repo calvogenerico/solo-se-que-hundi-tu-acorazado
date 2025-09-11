@@ -1,19 +1,19 @@
 circuit:
   inputs:
-    smallShipStartX: 3
-    smallShipStartY: 3
-    smallShipIsVertical: 1
-    smallShipSize: 2
+    smallShipStartX: "3"
+    smallShipStartY: "3"
+    smallShipIsVertical: "1"
+    smallShipSize: "2"
 
-    bigShipStartX: 5
-    bigShipStartY: 5
-    bigShipIsVertical: 0
-    bigShipSize: 4
+    bigShipStartX: "5"
+    bigShipStartY: "5"
+    bigShipIsVertical: "0"
+    bigShipSize: "4"
 
-    vSize: 12
-    hSize: 12
+    vSize: "12"
+    hSize: "12"
 
-    boardCommitment: 19851601164978595064910600514356114892428070917792260872497043985742628256314
+    boardCommitment: "19851601164978595064910600514356114892428070917792260872497043985742628256314"
 
-    hitX: 3
-    hitY: 3
+    hitX: "0"
+    hitY: "0"

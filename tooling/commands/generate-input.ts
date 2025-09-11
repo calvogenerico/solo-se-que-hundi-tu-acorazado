@@ -9,18 +9,19 @@ import { circuitOutDir } from "./compile.ts";
 export const argsSchema = z.object({
     circuit: z.object({
         inputs: z.object({
-            smallShipStartX: z.coerce.bigint(),
-            smallShipStartY: z.coerce.bigint(),
-            smallShipIsVertical: z.coerce.bigint(),
-            smallShipSize: z.coerce.bigint(),
-            bigShipStartX: z.coerce.bigint(),
-            bigShipStartY: z.coerce.bigint(),
-            bigShipIsVertical: z.coerce.bigint(),
-            bigShipSize: z.coerce.bigint(),
-            hSize: z.coerce.bigint(),
-            vSize: z.coerce.bigint(),
-            hitX: z.coerce.bigint(),
-            hitY: z.coerce.bigint(),
+            smallShipStartX: z.string(),
+            smallShipStartY: z.string(),
+            smallShipIsVertical: z.string(),
+            smallShipSize: z.string(),
+            bigShipStartX: z.string(),
+            bigShipStartY: z.string(),
+            bigShipIsVertical: z.string(),
+            bigShipSize: z.string(),
+            hSize: z.string(),
+            vSize: z.string(),
+            boardCommitment: z.string(),
+            hitX: z.string(),
+            hitY: z.string(),
         })
     })
 });
@@ -55,21 +56,23 @@ async function generateMainInputs() {
         bigShipStartY,
         bigShipIsVertical,
         bigShipSize,
+        boardCommitment,
         hitX,
         hitY
     } = parsed.circuit.inputs;
 
     const inputsFileContent = {
-        smallShipStartX: smallShipStartX.toString(),
-        smallShipStartY: smallShipStartY.toString(),
-        smallShipIsVertical: smallShipIsVertical.toString(),
-        smallShipSize: smallShipSize.toString(),
-        bigShipStartX: bigShipStartX.toString(),
-        bigShipStartY: bigShipStartY.toString(),
-        bigShipIsVertical: bigShipIsVertical.toString(),
-        bigShipSize: bigShipSize.toString(),
-        hitX: hitX.toString(),
-        hitY: hitY.toString()
+        smallShipStartX,
+        smallShipStartY,
+        smallShipIsVertical,
+        smallShipSize,
+        bigShipStartX,
+        bigShipStartY,
+        bigShipIsVertical,
+        bigShipSize,
+        boardCommitment,
+        hitX,
+        hitY
     };
 
     const circuitPath = 'circuits/main.circom';
@@ -78,7 +81,7 @@ async function generateMainInputs() {
 }
 
 export const addGenerateMainInput: AddCmd = (cli) => cli.command(
-    'input', 
+    'input',
     'generates input for main circuit',
     {},
     generateMainInputs
