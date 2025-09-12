@@ -3,6 +3,14 @@ pragma circom 2.2.2;
 include "./common.circom";
 include "circomlib/circuits/comparators.circom";
 
+function MAX_BOARD_SIZE_LOG() {
+    return 10;
+}
+
+function MAX_BOARD_SIZE() {
+    return 2 ** MAX_BOARD_SIZE_LOG();
+}
+
 
 template ShipInBounds(hSize, vSize) {
     input Ship ship;
@@ -39,6 +47,9 @@ template AssertBit() {
 
 
 template ValidateBoard(hSize, vSize) {
+    assert(MAX_BOARD_SIZE() > hSize);
+    assert(MAX_BOARD_SIZE() > vSize);
+
     assert(hSize > BIG_SHIP_SIZE());
     assert(vSize > BIG_SHIP_SIZE());
 
