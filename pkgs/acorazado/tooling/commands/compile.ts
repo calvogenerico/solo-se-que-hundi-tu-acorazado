@@ -1,6 +1,8 @@
 import type { AddCmd } from '../cli'
 import { $, baseDir } from '../utils';
-import { join, parse, relative} from 'node:path';
+import { join, parse, relative, resolve as pathResolve } from 'node:path';
+import * as fs from "node:fs/promises";
+import { exists } from "node:fs/promises";
 
 export function circuitOutDir(circuitPath: string): string {
     const base = baseDir();
@@ -17,7 +19,7 @@ export function r1csFilePath(circuitPath: string) {
 }
 
 export function jsDirName(circuitPath: string): string {
-    const outDir = circuitOutDir(circuitPath);
+    const outDir = pathResolve(circuitOutDir(circuitPath));
     const parsed = parse(circuitPath);
     return join(outDir, `${parsed.name}_js`);
 }
@@ -28,11 +30,33 @@ export function wasmFilePath(circuitPath: string): string {
     return join(dir, `${parsed.name}.wasm`);
 }
 
+async function hasCircomLib(dir: string): Promise<boolean> {
+    return exists(join(dir, 'node_modules', 'circomlib', 'circuits'));
+}
+
+async function searchLibFolder(): Promise<string> {
+    let dir = pathResolve(baseDir());
+
+    while (!await hasCircomLib(dir)) {
+        const parentDir = pathResolve(join(dir, '..'));
+        if (parentDir === dir) {
+            throw new Error('libs not found');
+        }
+
+        dir = parentDir;
+    }
+
+    return join(dir, 'node_modules');
+}
+
 export async function compile(circuitPath: string) {
     const outDir = circuitOutDir(circuitPath);
 
     await $`mkdir -p ${outDir}`;
-    await $`circom ${circuitPath} -l node_modules --r1cs --wasm --sym -o ${outDir}`
+
+    const libFolder = await searchLibFolder();
+
+    await $`circom ${circuitPath} -l ${libFolder} --r1cs --wasm --sym -o ${outDir}`
     const pkgJsonPath = join(jsDirName(circuitPath), 'package.json');
     await $`echo '{}' > ${pkgJsonPath}`
     console.log('Success!');

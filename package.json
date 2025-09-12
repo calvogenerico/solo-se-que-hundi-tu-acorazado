@@ -1,25 +1,5 @@
 {
-  "name": "solo-se-que-hundi-tu-acorazado",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "tool": "bun ./tooling/run.ts",
-    "tool:input": "bun ./tooling/run.ts input"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/yargs": "^17.0.33"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "circomlib": "^2.0.5",
-    "poseidon-lite": "^0.3.0",
-    "snarkjs": "^0.7.5",
-    "yaml": "^2.8.1",
-    "yargs": "^18.0.0",
-    "zod": "^4.1.5"
-  }
+  "name": "solose-ts",
+  "version": "0.1.0",
+  "workspaces": ["pkgs/*"]
 }

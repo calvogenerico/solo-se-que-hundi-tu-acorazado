@@ -17,6 +17,7 @@ template ReplaceItems(MaxLength) {
 
     for (var i = 0; i < MaxLength; i++) {
         equals[i] <== IsEqual()([array[i], from]);
+        
         firstTerms[i] <== to * equals[i];
         secondTerms[i] <== array[i] * (1 - equals[i]);
 
