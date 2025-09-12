@@ -15,8 +15,6 @@ template ReplaceItems(MaxLength) {
     signal secondTerms[MaxLength];
     signal aditions[MaxLength];
 
-    signal coso[MaxLength];
-
     for (var i = 0; i < MaxLength; i++) {
         equals[i] <== IsEqual()([array[i], from]);
         firstTerms[i] <== to * equals[i];
