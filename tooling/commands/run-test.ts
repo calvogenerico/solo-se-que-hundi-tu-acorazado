@@ -7,6 +7,7 @@ import { witness } from "./witness.ts";
 export async function runTest(testFile: string) {
     await compile(join(testFile));
     await saveInputs(testFile, {});
+    console.log('-------');
     await witness(testFile);
 }
 
