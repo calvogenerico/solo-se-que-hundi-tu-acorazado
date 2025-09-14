@@ -1,71 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { temporaryDirectory } from 'tempy';
-import { $ } from "zx";
-import { nanoid } from "nanoid";
-import { join } from "node:path";
-import { mkdir, writeFile, readFile, rm } from 'node:fs/promises'
-
-type CircomCompilerOpts = {
-  compilerPath?: string;
-  outDir?: string;
-  cwd?: string;
-};
-
-class Circuit {
-  mainFilePath: string;
-  inputsFilePath: string;
-  artifactDir: string;
-
-  constructor(mainPath: string, inputsFilePath: string, artifactDir: string) {
-    this.mainFilePath = mainPath;
-    this.inputsFilePath = inputsFilePath;
-    this.artifactDir = artifactDir;
-  }
-}
-
-class CircomCompiler {
-  private circomPath: string
-  private outDir: string;
-  private shell: typeof $;
-
-  constructor(opts: CircomCompilerOpts = {}) {
-    this.circomPath = opts.compilerPath ?? 'circom';
-    this.outDir = opts.outDir ?? temporaryDirectory()
-    this.shell = $({cwd: opts.cwd ?? process.cwd()})
-  }
-
-  async compileStr(source: string, name?: string): Promise<Circuit> {
-    const id = name ?? nanoid(8);
-
-    const outputPat = join(this.outDir, id);
-    await mkdir(outputPat, {recursive: true});
-    const mainFilePath = join(await this.tempInputDir(), `${id}.circom`);
-    const inputsFilePath = join(await this.tempInputDir(), `${id}-input.json`);
-    await writeFile(mainFilePath, source);
-
-    await this.shell`${this.circomPath} ${mainFilePath} --r1cs --wasm --sym -o ${outputPat}`;
-
-    return new Circuit(
-      mainFilePath,
-      inputsFilePath,
-      outputPat
-    );
-  }
-
-  async clean() {
-    await rm(this.outDir, { recursive: true });
-  }
-
-  private async tempInputDir() {
-    const path = join(this.outDir, '_local');
-    await mkdir(path, {recursive: true});
-    return path;
-  }
-}
+import { readFile } from 'node:fs/promises'
+import { CircomCompiler } from "../src/circom-compiler.ts";
 
 
 describe('compile cmd', () => {
-  it('can compile a simple circuit', async () => {
+  it('writes source code in disk', async () => {
     const compiler = new CircomCompiler();
     const source = `
 pragma circom 2.2.2;
@@ -76,7 +15,30 @@ component main = Test();
 
     const read = await readFile(circuit.mainFilePath);
     expect(read.toString().trim()).toEqual(source.trim());
-
     await compiler.clean();
-  })
+  });
+
+  it('generates sym file', async () => {
+    const compiler = new CircomCompiler();
+    const source = `
+pragma circom 2.2.2;
+template Test() {
+  input signal a;
+  output signal b;
+  b <== a + 1;
+}
+component main = Test();
+    `;
+    const circuit = await compiler.compileStr(source);
+    const symContent = await circuit.symFile();
+
+    const expectedContent = [
+      '1,1,0,main.b',
+      '2,2,0,main.a'
+    ].join('\n');
+
+    expect(symContent.trim()).toEqual(expectedContent.trim())
+    await compiler.clean();
+  });
+
 })
