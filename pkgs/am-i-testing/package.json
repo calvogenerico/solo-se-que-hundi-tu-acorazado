@@ -3,13 +3,17 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "snarkjs": "^0.7.5"
+    "nanoid": "^5.1.5",
+    "nochoices": "^1.1.5",
+    "snarkjs": "^0.7.5",
+    "zx": "^8.8.1"
   },
   "peerDependencies": {
     "typescript": "^5",
     "vitest": ">3.2.0"
   },
   "devDependencies": {
+    "tempy": "^3.1.0",
     "vitest": "^3.2.0"
   }
 }
