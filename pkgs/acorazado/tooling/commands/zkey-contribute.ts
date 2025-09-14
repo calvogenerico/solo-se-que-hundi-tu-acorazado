@@ -1,15 +1,16 @@
-import { $ } from "bun";
 import type { AddCmd } from "../cli";
 import { circuitOutDir } from "./compile";
 import { join, parse } from "node:path";
 import { randomBytes } from "node:crypto";
+import { $ } from "../utils.ts";
+import { readdir } from "node:fs/promises";
 
 const zkeyPattern = /(\d\d\d).zkey$/;
 
 export async function lastZkeyFilePath(circuitPath: string): Promise<string> {
     const base = circuitOutDir(circuitPath);
-    const files = await $`ls`.cwd(base).text().then(dirs => dirs.trim().split('\n').map(dir => dir.trim()));
-    const zKeys = files.filter(entry => zkeyPattern.test(entry)).toSorted();
+    const files = await readdir(base);
+    const zKeys = files.filter((entry: string) => zkeyPattern.test(entry)).toSorted();
     const last = zKeys.at(-1);
     if (!last) {
         throw new Error("No zkey generated. Maybe zkey-gen step is missing");
@@ -34,7 +35,7 @@ export async function zkeyContrib(circuitPath: string, givenEntropy?: string, co
     const lastZkey = await lastZkeyFilePath(circuitPath);
     const nextZkey = nextZkeyFileName(lastZkey);
 
-    const entropy = givenEntropy ?? randomBytes(32).toHex();
+    const entropy = givenEntropy ?? randomBytes(32).toString('hex');
     const contributor = contributorName ?? 'anon';
 
     await $`bun snarkjs zkc ${lastZkey} ${nextZkey} -e=${entropy} -n=${contributor}`;

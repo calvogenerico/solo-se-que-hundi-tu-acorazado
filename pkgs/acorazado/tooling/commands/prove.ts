@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { $ } from "../utils.ts";
 import { zkeyFinishedFileName } from "./zkey-finish.ts";
 import { witnessFilePath } from "./witness.ts";
-import { exists } from "node:fs/promises";
+import { existsSync } from "node:fs";
 
 export function proofFilePath(circuitPath: string): string {
     const dir = circuitOutDir(circuitPath);
@@ -20,11 +20,11 @@ export async function proveCircuit(circuitPath: string) {
     const zkey = zkeyFinishedFileName(circuitPath);
     const witness = witnessFilePath(circuitPath);
 
-    if (!await exists(zkey)) {
+    if (!existsSync(zkey)) {
         throw new Error(`Zkey file not found at ${zkey}. Maybe finish zkey cmd is missing?`);
     }
 
-    if (!await exists(witness)) {
+    if (!existsSync(witness)) {
         throw new Error(`Witness file not found at ${witness}. Maybe run command is missing?`)
     }
 

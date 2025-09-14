@@ -1,9 +1,10 @@
-import { $, Glob } from "bun";
 import type { AddCmd } from "../cli";
 import { circuitOutDir, r1csFilePath } from "./compile";
 import { ptauFilePath } from "./download-ptau";
 import { join, parse } from 'node:path';
-import { exists } from 'node:fs/promises'
+import { glob } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import $ from "dax-sh";
 
 function rawZkeyFilePath(circuitPath: string) {
     const base = circuitOutDir(circuitPath);
@@ -13,8 +14,7 @@ function rawZkeyFilePath(circuitPath: string) {
 
 export async function removeOldZkeyFiles(circuitPath: string) {
     const base = circuitOutDir(circuitPath);
-    const glob = new Glob(join(base, '*.zkey'));
-    for await (const filePath of glob.scan()) {
+    for await (const filePath of glob(join(base, '*.zkey'))) {
         await $`rm ${filePath}`;
     }
 }
@@ -23,11 +23,11 @@ export async function zkeyGen(circuitPath: string) {
     const r1csPath = r1csFilePath(circuitPath);
     const ptauPath = ptauFilePath();
 
-    if (!await exists(r1csPath)) {
+    if (!existsSync(r1csPath)) {
         throw new Error(`Missing r1cs file at "${r1csPath}". Maybe compile step is missing.`);
     }
 
-    if (!await exists(ptauPath)) {
+    if (!existsSync(ptauPath)) {
         throw new Error(`Missing ptau file at "${ptauPath}". Maybe download ptau step is missing step is missing.`);
     }
 

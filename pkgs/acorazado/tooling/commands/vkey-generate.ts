@@ -2,8 +2,8 @@ import type { AddCmd } from "../cli.ts";
 import { circuitOutDir } from "./compile.ts";
 import { join } from "node:path";
 import { zkeyFinishedFileName } from "./zkey-finish.ts";
-import { exists } from "node:fs/promises";
 import { $ } from "../utils.ts";
+import { existsSync } from "node:fs";
 
 export function vkeyFileName(circuitPath: string): string {
     const base = circuitOutDir(circuitPath);
@@ -14,7 +14,7 @@ async function vkeyGenerate(circuitPath: string) {
     const zkeyFile = zkeyFinishedFileName(circuitPath);
     const out = vkeyFileName(circuitPath);
 
-    if (!await exists(zkeyFile)) {
+    if (!existsSync(zkeyFile)) {
         throw new Error('Missing finished zkey file. Maybe zkey-finish step is missing');
     }
 

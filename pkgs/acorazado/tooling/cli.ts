@@ -1,13 +1,13 @@
 import yargs from 'yargs';
-import { $ } from "bun";
-
+import { ProcessOutput } from "zx";
+// import { $ } from 'dax-sh';
 
 export function buildCli() {
     return yargs()
         .scriptName('tool')
         .help()
         .fail(function (msg, err, yargs) {
-            if (err instanceof $.ShellError) {
+            if (err instanceof ProcessOutput) {
                 process.exit(1);
             }
             if (err) throw err // preserve stack

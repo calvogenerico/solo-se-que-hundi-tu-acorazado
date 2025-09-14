@@ -1,8 +1,7 @@
 import type { AddCmd } from '../cli'
 import { $, baseDir } from '../utils';
 import { join, parse, relative, resolve as pathResolve } from 'node:path';
-import * as fs from "node:fs/promises";
-import { exists } from "node:fs/promises";
+import { existsSync } from "node:fs";
 
 export function circuitOutDir(circuitPath: string): string {
     const base = baseDir();
@@ -31,7 +30,7 @@ export function wasmFilePath(circuitPath: string): string {
 }
 
 async function hasCircomLib(dir: string): Promise<boolean> {
-    return exists(join(dir, 'node_modules', 'circomlib', 'circuits'));
+    return existsSync(join(dir, 'node_modules', 'circomlib', 'circuits'));
 }
 
 async function searchLibFolder(): Promise<string> {
@@ -52,7 +51,7 @@ async function searchLibFolder(): Promise<string> {
 export async function compile(circuitPath: string) {
     const outDir = circuitOutDir(circuitPath);
 
-    await $`mkdir -p ${outDir}`;
+    await $`mkdir -p  ${outDir}`;
 
     const libFolder = await searchLibFolder();
 
@@ -61,7 +60,6 @@ export async function compile(circuitPath: string) {
     await $`echo '{}' > ${pkgJsonPath}`
     console.log('Success!');
 }
-
 
 export const addCompile: AddCmd = (cli) => {
     return cli.command(

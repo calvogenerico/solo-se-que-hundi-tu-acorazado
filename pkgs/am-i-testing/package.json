@@ -1,0 +1,15 @@
+{
+  "name": "@solose-ts/am-i-testing",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "snarkjs": "^0.7.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5",
+    "vitest": ">3.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.0"
+  }
+}

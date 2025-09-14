@@ -1,9 +1,9 @@
-import { $ } from "bun";
 import type { AddCmd } from "../cli";
 import { circuitOutDir } from "./compile";
 import { join, parse } from "node:path";
 import { randomBytes } from "node:crypto";
 import { lastZkeyFilePath } from "./zkey-contribute.ts";
+import { $ } from "../utils.ts";
 
 export function zkeyFinishedFileName(circuitPath: string) {
     const base = circuitOutDir(circuitPath);
@@ -16,8 +16,8 @@ export async function zkeyFinish(circuitPath: string, givenEntropy?: string, con
     const out = zkeyFinishedFileName(circuitPath);
 
     const entropy = givenEntropy
-        ? Buffer.from(givenEntropy).toHex()
-        : randomBytes(32).toHex();
+        ? Buffer.from(givenEntropy).toString('hex')
+        : randomBytes(32).toString('hex');
     const contributor = contributorName ?? 'anon';
 
     await $`bun snarkjs zkb ${input} ${out} ${entropy} 20 -n=${contributor} -v`;

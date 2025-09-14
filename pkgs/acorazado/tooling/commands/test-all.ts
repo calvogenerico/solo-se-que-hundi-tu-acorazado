@@ -1,19 +1,18 @@
 import type { AddCmd } from "../cli";
-import { $ } from "../utils.ts";
 import { runTest } from "./run-test.ts";
 import { join } from "node:path";
 import { runFailTest } from "./run-fail-test.ts";
 import { runErrorTest } from "./run-error-test.ts";
+import { readdir } from "node:fs/promises";
+import { baseDir } from "../utils.ts";
 
 
 async function runAllTests() {
-    const lsOutput = await $`ls tests`.text();
-    const files = lsOutput
-        .trim()
-        .split('\n')
-        .map(line => join('tests', line.trim()) )
-
-    const successTests = files.filter(file => file.endsWith('test.circom'));
+    const base = baseDir();
+    const testFilesNames = await readdir(join(base, 'tests'));
+    const files = testFilesNames.map(file => join(base, 'tests', file));
+    const successTests = files
+        .filter(file => file.endsWith('test.circom'));
 
     for (const test of successTests) {
         console.log(`Running ${test}...`)

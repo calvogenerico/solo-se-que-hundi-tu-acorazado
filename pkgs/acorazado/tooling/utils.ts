@@ -1,10 +1,12 @@
 import { join } from 'node:path'
-import { $ as bunShell } from 'bun';
+import { $ as base$ } from 'zx';
 
 export function baseDir() {
     return join(import.meta.dirname, '..');
 }
 
-bunShell.cwd(baseDir());
 
-export const $ = bunShell;
+export const $ = base$({
+    cwd: baseDir(),
+    stdio: "inherit"
+});

@@ -3,16 +3,17 @@ import { compile } from "./compile.ts";
 import { join } from "node:path";
 import { saveInputs } from "./generate-input.ts";
 import { witness } from "./witness.ts";
-import { $ } from "bun";
+import { ProcessOutput } from "zx";
 
 export async function runFailTest(testFile: string) {
     try {
         await compile(join(testFile));
     } catch (e) {
-        if (e instanceof $.ShellError) {
+        if (e instanceof ProcessOutput) {
             console.log("Test failed as expected");
             return;
         }
+        return;
     }
     throw new Error('Expected test to fail at compile time but it didn\'t');
 }
