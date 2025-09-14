@@ -58,5 +58,5 @@ export const addRunAllTests: AddCmd = (cli) => cli.command(
         type: 'string',
         demandOption: true
     }),
-    async (yargs) => runAllTests()
+    async (_yargs) => runAllTests()
 )

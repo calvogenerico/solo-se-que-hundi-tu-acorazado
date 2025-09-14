@@ -1,8 +1,6 @@
 import type { AddCmd } from "../cli";
 import { compile } from "./compile.ts";
 import { join } from "node:path";
-import { saveInputs } from "./generate-input.ts";
-import { witness } from "./witness.ts";
 import { ProcessOutput } from "zx";
 
 export async function runFailTest(testFile: string) {
