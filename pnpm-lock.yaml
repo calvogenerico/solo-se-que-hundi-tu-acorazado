@@ -63,6 +63,9 @@ importers:
         specifier: ^8.8.1
         version: 8.8.1
     devDependencies:
+      '@types/snarkjs':
+        specifier: ^0.7.9
+        version: 0.7.9
       tempy:
         specifier: ^3.1.0
         version: 3.1.0
@@ -353,6 +356,9 @@ packages:
 
   '@types/node@24.3.3':
     resolution: {integrity: sha512-GKBNHjoNw3Kra1Qg5UXttsY5kiWMEfoHq2TmXb+b1rcm6N7B3wTrFYIf/oSZ1xNQ+hVVijgLkiDZh7jRRsh+Gw==}
+
+  '@types/snarkjs@0.7.9':
+    resolution: {integrity: sha512-pb4Bq3GI2YQOQOG0dR/YuQs/mqcuL6k/vnz68LIPtpA2frrUL3twf69a3AUK9eUmNNeW0RIKkq6scDlC75Is+g==}
 
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -1045,6 +1051,8 @@ snapshots:
   '@types/node@24.3.3':
     dependencies:
       undici-types: 7.10.0
+
+  '@types/snarkjs@0.7.9': {}
 
   '@types/yargs-parser@21.0.3': {}
 
