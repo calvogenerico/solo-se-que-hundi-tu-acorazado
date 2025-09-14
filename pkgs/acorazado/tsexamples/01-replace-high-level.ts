@@ -1,7 +1,7 @@
 function replaceUpTo(arr: number[], from: number, to: number, upTo: number) {
-    const firstPart = arr.slice(0, upTo).map(elem => elem === from ? to : elem);
-    const secondPart = new Array(arr.length - upTo).fill(0);
-    return [...firstPart, ...secondPart];
+  const firstPart = arr.slice(0, upTo).map(elem => elem === from ? to : elem);
+  const secondPart = new Array(arr.length - upTo).fill(0);
+  return [...firstPart, ...secondPart];
 }
 
 // console.log(replaceUpTo([1,1,1], 1, 2, 2));

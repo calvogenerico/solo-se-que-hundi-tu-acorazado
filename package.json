@@ -1,5 +1,7 @@
 {
   "name": "solose-ts",
   "version": "0.1.0",
-  "workspaces": ["pkgs/*"]
+  "workspaces": [
+    "pkgs/*"
+  ]
 }

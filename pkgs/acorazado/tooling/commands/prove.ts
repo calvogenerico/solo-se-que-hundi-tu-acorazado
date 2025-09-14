@@ -7,44 +7,44 @@ import { witnessFilePath } from "./witness.ts";
 import { existsSync } from "node:fs";
 
 export function proofFilePath(circuitPath: string): string {
-    const dir = circuitOutDir(circuitPath);
-    return join(dir, 'out.proof');
+  const dir = circuitOutDir(circuitPath);
+  return join(dir, 'out.proof');
 }
 
 export function publicArgsFilePath(circuitPath: string): string {
-    const dir = circuitOutDir(circuitPath);
-    return join(dir, 'out-public.json');
+  const dir = circuitOutDir(circuitPath);
+  return join(dir, 'out-public.json');
 }
 
 export async function proveCircuit(circuitPath: string) {
-    const zkey = zkeyFinishedFileName(circuitPath);
-    const witness = witnessFilePath(circuitPath);
+  const zkey = zkeyFinishedFileName(circuitPath);
+  const witness = witnessFilePath(circuitPath);
 
-    if (!existsSync(zkey)) {
-        throw new Error(`Zkey file not found at ${zkey}. Maybe finish zkey cmd is missing?`);
-    }
+  if (!existsSync(zkey)) {
+    throw new Error(`Zkey file not found at ${zkey}. Maybe finish zkey cmd is missing?`);
+  }
 
-    if (!existsSync(witness)) {
-        throw new Error(`Witness file not found at ${witness}. Maybe run command is missing?`)
-    }
+  if (!existsSync(witness)) {
+    throw new Error(`Witness file not found at ${witness}. Maybe run command is missing?`)
+  }
 
-    const outProof = proofFilePath(circuitPath);
-    const outPublicArgs = publicArgsFilePath(circuitPath);
-    await $`bun snarkjs g16p ${zkey} ${witness} ${outProof} ${outPublicArgs}`
-    console.log('\nSuccess! Proof generated.');
-    console.log(`proof: ${outProof}`);
-    console.log(`pub  : ${outPublicArgs}`);
+  const outProof = proofFilePath(circuitPath);
+  const outPublicArgs = publicArgsFilePath(circuitPath);
+  await $`bun snarkjs g16p ${zkey} ${witness} ${outProof} ${outPublicArgs}`
+  console.log('\nSuccess! Proof generated.');
+  console.log(`proof: ${outProof}`);
+  console.log(`pub  : ${outPublicArgs}`);
 }
 
 export const addProve: AddCmd = (cli) => cli.command(
-    'prove [circuitPath]',
-    'generates a proof',
-    (yargs) => yargs.positional('circuitPath', {
-        type: 'string',
-        default: 'circuits/main.circom',
-        demandOption: false
-    }),
-    async (yargs) => {
-        proveCircuit(yargs.circuitPath);
-    }
+  'prove [circuitPath]',
+  'generates a proof',
+  (yargs) => yargs.positional('circuitPath', {
+    type: 'string',
+    default: 'circuits/main.circom',
+    demandOption: false
+  }),
+  async (yargs) => {
+    proveCircuit(yargs.circuitPath);
+  }
 )

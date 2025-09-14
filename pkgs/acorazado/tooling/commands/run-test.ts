@@ -5,18 +5,18 @@ import { saveInputs } from "./generate-input.ts";
 import { witness } from "./witness.ts";
 
 export async function runTest(testFile: string) {
-    await compile(join(testFile));
-    await saveInputs(testFile, {});
-    console.log('-------');
-    await witness(testFile);
+  await compile(join(testFile));
+  await saveInputs(testFile, {});
+  console.log('-------');
+  await witness(testFile);
 }
 
 export const addRunTest: AddCmd = (cli) => cli.command(
-    'test <testName>',
-    'run one test',
-    (yargs) => yargs.positional('testName', {
-        type: 'string',
-        demandOption: true
-    }),
-    async (yargs) => runTest(yargs.testName)
+  'test <testName>',
+  'run one test',
+  (yargs) => yargs.positional('testName', {
+    type: 'string',
+    demandOption: true
+  }),
+  async (yargs) => runTest(yargs.testName)
 )

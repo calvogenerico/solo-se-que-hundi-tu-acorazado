@@ -9,19 +9,19 @@ import { proveCircuit } from "./prove.ts";
 
 
 async function fullRunCircuit() {
-    const circuitPath = 'circuits/main.circom';
-    await compile(circuitPath);
-    await generateMainInputs();
-    await witness(circuitPath);
-    await zkeyGen(circuitPath);
-    await zkeyContrib(circuitPath);
-    await zkeyFinish(circuitPath);
-    await proveCircuit(circuitPath);
+  const circuitPath = 'circuits/main.circom';
+  await compile(circuitPath);
+  await generateMainInputs();
+  await witness(circuitPath);
+  await zkeyGen(circuitPath);
+  await zkeyContrib(circuitPath);
+  await zkeyFinish(circuitPath);
+  await proveCircuit(circuitPath);
 }
 
 export const addFullRunCmd: AddCmd = (cli) => cli.command(
-    'full-run',
-    'compiles, generates inputs, zkeys, witness and proof for circuit',
-    {},
-    async () => fullRunCircuit()
+  'full-run',
+  'compiles, generates inputs, zkeys, witness and proof for circuit',
+  {},
+  async () => fullRunCircuit()
 )

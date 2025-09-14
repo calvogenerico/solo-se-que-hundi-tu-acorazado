@@ -23,28 +23,28 @@ import { addFullRunCmd } from "./commands/full-run.ts";
 const cli = buildCli();
 
 const allCommands = [
-    addCompile,
-    addClean,
-    addGenerateMainInput,
-    addWitness,
-    addDownloadPtau,
-    addZkeyGen,
-    addZkeyContrib,
-    addZkeyFinish,
-    addVkeyGen,
-    addProve,
-    addVerify,
-    addRunTest,
-    addRunFailTest,
-    addRunErrorTest,
-    addRunAllTests,
-    addHashBoard,
-    addRunCmd,
-    addFullRunCmd
+  addCompile,
+  addClean,
+  addGenerateMainInput,
+  addWitness,
+  addDownloadPtau,
+  addZkeyGen,
+  addZkeyContrib,
+  addZkeyFinish,
+  addVkeyGen,
+  addProve,
+  addVerify,
+  addRunTest,
+  addRunFailTest,
+  addRunErrorTest,
+  addRunAllTests,
+  addHashBoard,
+  addRunCmd,
+  addFullRunCmd
 ];
 
 for (const addCmd of allCommands) {
-    addCmd(cli);
+  addCmd(cli);
 }
 
 await cli.parseAsync(hideBin(process.argv));

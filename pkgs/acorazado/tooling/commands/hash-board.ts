@@ -7,39 +7,39 @@ import { argsSchema } from "./generate-input.ts";
 import { poseidon4 } from 'poseidon-lite';
 
 async function hashBoard() {
-    const base = baseDir();
-    const file = await readFile(join(base, 'arguments.yaml'));
-    const obj = YAML.parse(file.toString());
+  const base = baseDir();
+  const file = await readFile(join(base, 'arguments.yaml'));
+  const obj = YAML.parse(file.toString());
 
-    const parsed = argsSchema.parse(obj).circuit.inputs;
+  const parsed = argsSchema.parse(obj).circuit.inputs;
 
-    const bigShipHash = poseidon4([
-        parsed.bigShipStartX,
-        parsed.bigShipStartY,
-        parsed.bigShipIsVertical,
-        parsed.bigShipSize,
-    ]);
+  const bigShipHash = poseidon4([
+    parsed.bigShipStartX,
+    parsed.bigShipStartY,
+    parsed.bigShipIsVertical,
+    parsed.bigShipSize,
+  ]);
 
-    const smallShipHash = poseidon4([
-        parsed.smallShipStartX,
-        parsed.smallShipStartY,
-        parsed.smallShipIsVertical,
-        parsed.smallShipSize,
-    ]);
+  const smallShipHash = poseidon4([
+    parsed.smallShipStartX,
+    parsed.smallShipStartY,
+    parsed.smallShipIsVertical,
+    parsed.smallShipSize,
+  ]);
 
-    const finalHash = poseidon4([
-        smallShipHash,
-        bigShipHash,
-        parsed.hSize,
-        parsed.vSize
-    ])
+  const finalHash = poseidon4([
+    smallShipHash,
+    bigShipHash,
+    parsed.hSize,
+    parsed.vSize
+  ])
 
-    console.log(finalHash.toString());
+  console.log(finalHash.toString());
 }
 
 export const addHashBoard: AddCmd = (cli) => cli.command(
-    'hash-board',
-    'generates a valid hash for the board arguments.yaml',
-    {},
-    hashBoard
+  'hash-board',
+  'generates a valid hash for the board arguments.yaml',
+  {},
+  hashBoard
 )
