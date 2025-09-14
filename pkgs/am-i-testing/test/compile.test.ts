@@ -1,7 +1,7 @@
 import { describe, expect, it as baseIt } from "vitest";
 import { readFile } from 'node:fs/promises'
 import { CircomCompiler } from "../src/circom-compiler.ts";
-import { r1cs } from 'snarkjs';
+import { r1cs, wtns } from 'snarkjs';
 
 type Fixture = {
   compiler: CircomCompiler
@@ -109,5 +109,7 @@ describe('compile cmd', () => {
 
     const file = await readFile(path);
     expect(file.toString()).toMatch(/^wtns/);
+    const check = await wtns.check(circuit.r1csPath(), circuit.witnessPath());
+    expect(check).toBe(true);
   });
 });
