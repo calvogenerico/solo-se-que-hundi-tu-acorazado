@@ -2,6 +2,7 @@ import { describe, expect, it as baseIt } from "vitest";
 import { readFile } from 'node:fs/promises'
 import { CircomCompiler } from "../src/circom-compiler.ts";
 import { r1cs, wtns } from 'snarkjs';
+import { join } from "node:path";
 
 type Fixture = {
   compiler: CircomCompiler
@@ -9,8 +10,8 @@ type Fixture = {
 
 const it = baseIt.extend<Fixture>({
   compiler: async ({}, use) => {
-    const compiler = new CircomCompiler();
-    use(new CircomCompiler());
+    const compiler = new CircomCompiler({ ptauPath: join(import.meta.dirname, 'ptau', 'powersoftau_09.ptau') });
+    await use(compiler);
     await compiler.clean();
   }
 });
@@ -21,6 +22,16 @@ function mls(...lines: string[]) {
 }
 
 describe('compile cmd', () => {
+  const someCircuitCode = mls(
+    'pragma circom 2.2.2;',
+    'template Test() {',
+    '  input signal a;',
+    '  output signal b;',
+    '  b <== a + 1;',
+    '}',
+    'component main = Test();'
+  );
+
   it('writes source code in disk', async ({compiler}) => {
     const source = mls(
       'pragma circom 2.2.2;',
@@ -104,12 +115,23 @@ describe('compile cmd', () => {
     );
 
     const circuit = await compiler.compileStr(source);
-    await circuit.setInput({a: '11'});
-    const path = await circuit.witness();
+    const witness = await circuit.witness({a: '11'});
 
-    const file = await readFile(path);
+    const file = await readFile(witness.filePath);
     expect(file.toString()).toMatch(/^wtns/);
     const check = await wtns.check(circuit.r1csPath(), circuit.witnessPath());
     expect(check).toBe(true);
+  });
+
+  it('can generate proofs', async ({ compiler }) => {
+    const circuit = await compiler.compileStr(someCircuitCode);
+    const witness = await circuit.witness({ a: '11' });
+    const proof = await witness.proveGroth16();
+    expect(proof.publicSignals).toEqual(['12']);
+    expect(proof.proof.curve).toEqual('bn128');
+  });
+
+  it('proofs can be verified', async ({ compiler }) => {
+    throw new Error('not implemented yet')
   });
 });
