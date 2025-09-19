@@ -1,20 +1,12 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join, parse } from "node:path";
-import { wtns, type CircuitSignals } from 'snarkjs';
+import { type CircuitSignals, groth16, wtns, zKey } from 'snarkjs';
 import { Witness } from "./witness.ts";
 import type { Option } from "nochoices";
-import { zKey, groth16 } from 'snarkjs';
 import { random } from "nanoid";
 import { existsSync } from 'node:fs';
 import type { Proof } from "./proof.ts";
-
-type JsonLike = {
-  [key: string]: JsonLikeKey
-};
-
-type JsonLikeKey = number | string | null | JsonLike | JsonLikeKey[]
-
-type Brand<K, T> = K & { __brand: T }
+import type { Brand, JsonLikeKey } from "./types.ts";
 
 type VerificationKey = Brand<JsonLikeKey, 'vKey'>;
 
