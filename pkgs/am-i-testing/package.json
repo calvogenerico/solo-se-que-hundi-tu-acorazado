@@ -1,8 +1,10 @@
 {
   "name": "@solose-ts/am-i-testing",
   "type": "module",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "canonical-json": "^0.2.0",
     "nanoid": "^5.1.5",
     "nochoices": "^1.1.5",
     "snarkjs": "^0.7.5",

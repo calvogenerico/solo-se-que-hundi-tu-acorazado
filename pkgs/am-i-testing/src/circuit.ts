@@ -6,9 +6,16 @@ import type { Option } from "nochoices";
 import { random } from "nanoid";
 import { existsSync } from 'node:fs';
 import type { Proof } from "./proof.ts";
-import type { Brand, JsonLikeKey } from "./types.ts";
+import type { Brand, JsonLike } from "./types.ts";
+import { createHash } from 'node:crypto';
+import { stringify } from 'canonical-json'
 
-type VerificationKey = Brand<JsonLikeKey, 'vKey'>;
+type VerificationKey = Brand<JsonLike, 'vKey'>;
+
+function quickHash(obj: JsonLike, size: number): string {
+  const text = stringify(obj);
+  return createHash('sha1').update(text, 'ascii').digest('base64url').slice(0, size);
+}
 
 export class Circuit {
   mainFilePath: string;
@@ -35,17 +42,15 @@ export class Circuit {
   }
 
   async setInput(inputsObj: CircuitSignals): Promise<void> {
-    await writeFile(this.inputPath(), JSON.stringify(inputsObj, null, 2));
-  }
-
-  inputPath(): string {
-    return join(this.artifactDir, `witness-inputs.json`);
+    const text = stringify(this.signalsToJson(inputsObj));
+    await writeFile(this.inputPath(inputsObj), text);
   }
 
   async witness(inputsObj: CircuitSignals): Promise<Witness> {
     await this.setInput(inputsObj);
-    const text = await readFile(this.inputPath()).then(buf => buf.toString());
-    const outPath = this.witnessPath();
+    const text = await readFile(this.inputPath(inputsObj)).then(buf => buf.toString());
+    const outPath = this.witnessPath(inputsObj);
+
     await wtns.calculate(
       JSON.parse(text) as CircuitSignals,
       join(this.artifactDir, `${this.name}_js`, `${this.name}.wasm`),
@@ -84,12 +89,22 @@ export class Circuit {
     return this.zkeyFinalPath();
   }
 
+  async groth16Verify(proof: Proof): Promise<boolean> {
+    const vkey = await this.vKey();
+    return groth16.verify(vkey, proof.publicSignals, proof.proof)
+  }
+
   async vKey(): Promise<VerificationKey> {
     return zKey.exportVerificationKey(await this.generateGroth16Zkey());
   }
 
   async saveVkey(): Promise<void> {
-    await writeFile(this.vKeyPath(), JSON.stringify(this.vKey()));
+    await writeFile(this.vKeyPath(), JSON.stringify(await this.vKey()));
+  }
+
+  inputPath(inputsObj: CircuitSignals): string {
+    const prefix = this.inputsDigest(inputsObj) ;
+    return join(this.artifactDir, `witness-${prefix}.inputs.json`);
   }
 
   zkeyInitialPath(): string {
@@ -104,17 +119,26 @@ export class Circuit {
     return join(this.artifactDir, `${this.name}.final.zkey`)
   }
 
-  witnessPath(): string {
-    return join(this.artifactDir, `trace.wts`);
+  witnessPath(inputsObj: CircuitSignals): string {
+    const prefix = this.inputsDigest(inputsObj);
+    return join(this.artifactDir, `trace-${prefix}.wts`);
   }
 
   vKeyPath(): string {
-    return join(this.artifactDir, `${this.name}.vkey`);
+    return join(this.artifactDir, `${this.name}.vkey.json`);
   }
 
-  async groth16Verify(proof: Proof): Promise<boolean> {
-    const vkey = await this.vKey();
-    console.log(vkey);
-    return groth16.verify(vkey, proof.publicSignals, proof.proof)
+  private inputsDigest(inputsObj: CircuitSignals): string {
+    return quickHash(this.signalsToJson(inputsObj), 8);
+  }
+
+  private signalsToJson(inputsObj: CircuitSignals): JsonLike {
+    const string = JSON.stringify(inputsObj, (key, value) => {
+      if (typeof value === 'bigint') {
+        return value.toString()
+      }
+      return value;
+    }, 2);
+    return JSON.parse(string);
   }
 }

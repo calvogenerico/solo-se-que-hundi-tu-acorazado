@@ -47,6 +47,9 @@ importers:
 
   pkgs/am-i-testing:
     dependencies:
+      canonical-json:
+        specifier: ^0.2.0
+        version: 0.2.0
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -437,6 +440,10 @@ packages:
   cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
+
+  canonical-json@0.2.0:
+    resolution: {integrity: sha512-xeH/NgtNA7kIuKSxopJVdXqCKWyDB79aqxQRQ9FV02fvmqW7DSnjoFyzAUrBpfbwjU6lwTYOLc+HM6KupbsfVQ==}
+    hasBin: true
 
   chai@5.3.3:
     resolution: {integrity: sha512-4zNhdJD/iOjSH0A05ea+Ke6MU5mmpQcbQsSOkgdaUMJ9zTlDTD/GYlwohmIE2u0gaxHYiVHEn1Fw9mZ/ktJWgw==}
@@ -1136,6 +1143,8 @@ snapshots:
       balanced-match: 1.0.2
 
   cac@6.7.14: {}
+
+  canonical-json@0.2.0: {}
 
   chai@5.3.3:
     dependencies:

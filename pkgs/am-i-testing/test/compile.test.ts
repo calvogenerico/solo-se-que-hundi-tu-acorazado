@@ -10,7 +10,7 @@ type Fixture = {
 
 const it = baseIt.extend<Fixture>({
   compiler: async ({}, use) => {
-    const compiler = new CircomCompiler({ ptauPath: join(import.meta.dirname, 'ptau', 'powersoftau_09.ptau') });
+    const compiler = new CircomCompiler({ptauPath: join(import.meta.dirname, 'ptau', 'powersoftau_09.ptau')});
     await use(compiler);
     await compiler.clean();
   }
@@ -96,8 +96,9 @@ describe('compile cmd', () => {
     );
 
     const circuit = await compiler.compileStr(source);
-    await circuit.setInput({a: '11'});
-    const path = circuit.inputPath();
+    const input = {a: '11'};
+    await circuit.setInput(input);
+    const path = circuit.inputPath(input);
 
     const file = await readFile(path);
     expect(JSON.parse(file.toString())).toEqual({a: '11'})
@@ -115,28 +116,139 @@ describe('compile cmd', () => {
     );
 
     const circuit = await compiler.compileStr(source);
-    const witness = await circuit.witness({a: '11'});
+    const inputs = {a: '11'};
+    const witness = await circuit.witness(inputs);
 
     const file = await readFile(witness.filePath);
     expect(file.toString()).toMatch(/^wtns/);
-    const check = await wtns.check(circuit.r1csPath(), circuit.witnessPath());
+    const check = await wtns.check(circuit.r1csPath(), circuit.witnessPath(inputs));
     expect(check).toBe(true);
   });
 
-  it('can generate proofs', async ({ compiler }) => {
+  it('can generate proofs', async ({compiler}) => {
     const circuit = await compiler.compileStr(someCircuitCode);
-    const witness = await circuit.witness({ a: '11' });
+    const witness = await circuit.witness({a: '11'});
     const proof = await witness.proveGroth16();
     expect(proof.publicSignals).toEqual(['12']);
     expect(proof.proof.curve).toEqual('bn128');
   });
 
-  it('proofs can be verified', async ({ compiler }) => {
+  it('proofs can be verified', async ({compiler}) => {
     const circuit = await compiler.compileStr(someCircuitCode);
-    const witness = await circuit.witness({ a: '11' });
+    const witness = await circuit.witness({a: '11'});
     const proof = await witness.proveGroth16();
 
     const verification = await circuit.groth16Verify(proof)
     expect(verification).toBe(true);
+  });
+
+  it('can add library roots', async ({compiler}) => {
+    const dir = join(import.meta.dirname, 'test-circuit-lib');
+    compiler.libraryRoot(dir);
+
+
+    const source = mls(
+      'pragma circom 2.2.2;',
+      'include "add.circom";',
+      'template Test() {',
+      '  input signal a;',
+      '  input signal b;',
+      '  output signal c;',
+      '  c <== Add()(a, b);',
+      '}',
+      'component main = Test();'
+    );
+
+    const circuit = await compiler.compileStr(source);
+
+    const w = await circuit.witness({a: 10, b: 22});
+    const proof = await w.proveGroth16();
+    expect(proof.publicSignals[0]).toEqual('32');
+  });
+
+  it('can add library roots 2', async ({compiler}) => {
+    const dir = join(import.meta.dirname);
+    compiler.libraryRoot(dir);
+
+
+    const source = mls(
+      'pragma circom 2.2.2;',
+      'include "test-circuit-lib/add.circom";',
+      'template Test() {',
+      '  input signal a;',
+      '  input signal b;',
+      '  output signal c;',
+      '  c <== Add()(a, b);',
+      '}',
+      'component main = Test();'
+    );
+
+    const circuit = await compiler.compileStr(source);
+
+    const w = await circuit.witness({a: 10, b: 22});
+    const proof = await w.proveGroth16();
+    expect(proof.publicSignals[0]).toEqual('32');
+  });
+
+  it('can add multiple library roots', async ({compiler}) => {
+    const dir = join(import.meta.dirname, 'test-circuit-lib');
+    const dir2 = join(import.meta.dirname, 'test-circuit-lib-2');
+    compiler.libraryRoot(dir);
+    compiler.libraryRoot(dir2);
+
+
+    const source = mls(
+      'pragma circom 2.2.2;',
+      'include "add.circom";',
+      'include "sub.circom";',
+      'template Test() {',
+      '  input signal a;',
+      '  input signal b;',
+      '  signal c;',
+      '  output signal d;',
+      '  c <== Add()(a, b);',
+      '  d <== Sub()(c, 1);',
+      '}',
+      'component main = Test();'
+    );
+
+    const circuit = await compiler.compileStr(source);
+
+    const w = await circuit.witness({a: 10, b: 22});
+    const proof = await w.proveGroth16();
+    expect(proof.publicSignals[0]).toEqual('31');
+  });
+
+  it('can save verification keys', async ({compiler}) => {
+    const source = mls(
+      'pragma circom 2.2.2;',
+      'template Test() {',
+      '  output signal a <== 10;',
+      '}',
+      'component main = Test();'
+    );
+    const circuit = await compiler.compileStr(source);
+    await circuit.saveVkey();
+    const vKey = await circuit.vKey()
+
+    const restored = JSON.parse((await readFile(circuit.vKeyPath())).toString());
+    expect(restored).toEqual(vKey);
+  });
+
+  it('generates right extensions for all paths', async ({compiler}) => {
+    const source = mls(
+      'pragma circom 2.2.2;',
+      'template Test() {',
+      '  output signal a <== 10;',
+      '}',
+      'component main = Test();'
+    );
+    const circuit = await compiler.compileStr(source);
+    expect(circuit.vKeyPath()).toMatch(/\.vkey\.json$/);
+    expect(circuit.zkeyInitialPath()).toMatch(/\.000\.zkey$/);
+    expect(circuit.zkeyPath(10)).toMatch(/\.010\.zkey$/);
+    expect(circuit.zkeyFinalPath()).toMatch(/\.final\.zkey$/);
+    expect(circuit.witnessPath({a: '1'})).toMatch(/\.wts$/);
+    expect(circuit.inputPath({a: '1'})).toMatch(/\.inputs\.json$/);
   });
 });
