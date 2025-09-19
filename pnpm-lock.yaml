@@ -50,6 +50,9 @@ importers:
       canonical-json:
         specifier: ^0.2.0
         version: 0.2.0
+      dedent:
+        specifier: ^1.7.0
+        version: 1.7.0
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -478,6 +481,14 @@ packages:
       supports-color: '*'
     peerDependenciesMeta:
       supports-color:
+        optional: true
+
+  dedent@1.7.0:
+    resolution: {integrity: sha512-HGFtf8yhuhGhqO07SV79tRp+br4MnbdjeVxotpn1QBl30pcLLCQjX5b2295ll0fv8RKDKsmWYrl05usHM9CewQ==}
+    peerDependencies:
+      babel-plugin-macros: ^3.1.0
+    peerDependenciesMeta:
+      babel-plugin-macros:
         optional: true
 
   deep-eql@5.0.2:
@@ -1177,6 +1188,8 @@ snapshots:
   debug@4.4.1:
     dependencies:
       ms: 2.1.3
+
+  dedent@1.7.0: {}
 
   deep-eql@5.0.2: {}
 

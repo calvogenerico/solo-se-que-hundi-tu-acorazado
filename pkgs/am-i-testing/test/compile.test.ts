@@ -5,6 +5,7 @@ import { CircomCompiler } from "../src/circom-compiler.ts";
 import { r1cs, wtns } from 'snarkjs';
 import { join } from "node:path";
 import { CircomCompileError, CircomRuntimeError } from "../src/errors.ts";
+import dedent from "dedent";
 
 type Fixture = {
   compiler: CircomCompiler
@@ -24,22 +25,22 @@ function mls(...lines: string[]) {
 }
 
 describe('compile cmd', () => {
-  const someCircuitCode = mls(
-    'pragma circom 2.2.2;',
-    'template Test() {',
-    '  input signal a;',
-    '  output signal b;',
-    '  b <== a + 1;',
-    '}',
-    'component main = Test();'
-  );
+  const someCircuitCode = dedent`
+    pragma circom 2.2.2;
+    template Test() {
+      input signal a;
+      output signal b;
+      b <== a + 1;
+    }
+    component main = Test();
+  `;
 
   it('writes source code in disk', async ({compiler}) => {
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'template Test() {}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      template Test() {}
+      component main = Test();
+    `;
 
     const circuit = await compiler.compileStr(source);
 
@@ -48,15 +49,15 @@ describe('compile cmd', () => {
   });
 
   it('generates sym file', async ({compiler}) => {
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'template Test() {',
-      '  input signal a;',
-      '  output signal b;',
-      '  b <== a + 1;',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      template Test() {
+        input signal a;
+        output signal b;
+        b <== a + 1;
+      }
+      component main = Test();
+    `;
 
     const circuit = await compiler.compileStr(source);
     const symContent = await circuit.symFile();
@@ -70,15 +71,15 @@ describe('compile cmd', () => {
   });
 
   it('produces right r1cs file', async ({compiler}) => {
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'template Test() {',
-      '  input signal a;',
-      '  output signal b;',
-      '  b <== a + 1;',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      template Test() {
+        input signal a;
+        output signal b;
+        b <== a + 1;
+      }
+      component main = Test();
+    `
 
     const circuit = await compiler.compileStr(source);
     const path = circuit.r1csPath();
@@ -87,15 +88,15 @@ describe('compile cmd', () => {
   });
 
   it('can store input in disk', async ({compiler}) => {
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'template Test() {',
-      '  input signal a;',
-      '  output signal b;',
-      '  b <== a + 1;',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      template Test() {
+        input signal a;
+        output signal b;
+        b <== a + 1;
+      }
+      component main = Test();
+    `;
 
     const circuit = await compiler.compileStr(source);
     const input = {a: '11'};
@@ -107,15 +108,15 @@ describe('compile cmd', () => {
   });
 
   it('generates witness with proper input', async ({compiler}) => {
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'template Test() {',
-      '  input signal a;',
-      '  output signal b;',
-      '  b <== a + 1;',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      template Test() {
+        input signal a;
+        output signal b;
+        b <== a + 1;
+      }
+      component main = Test();
+    `;
 
     const circuit = await compiler.compileStr(source);
     const inputs = {a: '11'};
@@ -149,17 +150,17 @@ describe('compile cmd', () => {
     compiler.libraryRoot(dir);
 
 
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'include "add.circom";',
-      'template Test() {',
-      '  input signal a;',
-      '  input signal b;',
-      '  output signal c;',
-      '  c <== Add()(a, b);',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      include "add.circom";
+      template Test() {
+        input signal a;
+        input signal b;
+        output signal c;
+        c <== Add()(a, b);
+      }
+      component main = Test();
+    `
 
     const circuit = await compiler.compileStr(source);
 
@@ -172,18 +173,17 @@ describe('compile cmd', () => {
     const dir = join(import.meta.dirname);
     compiler.libraryRoot(dir);
 
-
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'include "test-circuit-lib/add.circom";',
-      'template Test() {',
-      '  input signal a;',
-      '  input signal b;',
-      '  output signal c;',
-      '  c <== Add()(a, b);',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      include "test-circuit-lib/add.circom";
+      template Test() {
+        input signal a;
+        input signal b;
+        output signal c;
+        c <== Add()(a, b);
+      }
+      component main = Test();
+    `;
 
     const circuit = await compiler.compileStr(source);
 
@@ -199,20 +199,20 @@ describe('compile cmd', () => {
     compiler.libraryRoot(dir2);
 
 
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'include "add.circom";',
-      'include "sub.circom";',
-      'template Test() {',
-      '  input signal a;',
-      '  input signal b;',
-      '  signal c;',
-      '  output signal d;',
-      '  c <== Add()(a, b);',
-      '  d <== Sub()(c, 1);',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      include "add.circom";
+      include "sub.circom";
+      template Test() {
+        input signal a;
+        input signal b;
+        signal c;
+        output signal d;
+        c <== Add()(a, b);
+        d <== Sub()(c, 1);
+      }
+      component main = Test();
+    `
 
     const circuit = await compiler.compileStr(source);
 
@@ -222,13 +222,13 @@ describe('compile cmd', () => {
   });
 
   it('can save verification keys', async ({compiler}) => {
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'template Test() {',
-      '  output signal a <== 10;',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      template Test() {
+        output signal a <== 10;
+      }
+      component main = Test();
+    `;
     const circuit = await compiler.compileStr(source);
     await circuit.saveVkey();
     const vKey = await circuit.vKey()
@@ -238,13 +238,13 @@ describe('compile cmd', () => {
   });
 
   it('generates right extensions for all paths', async ({compiler}) => {
-    const source = mls(
-      'pragma circom 2.2.2;',
-      'template Test() {',
-      '  output signal a <== 10;',
-      '}',
-      'component main = Test();'
-    );
+    const source = dedent`
+      pragma circom 2.2.2;
+      template Test() {
+        output signal a <== 10;
+      }
+      component main = Test();
+    `;
     const circuit = await compiler.compileStr(source);
     expect(circuit.vKeyPath()).toMatch(/\.vkey\.json$/);
     expect(circuit.zkeyInitialPath()).toMatch(/\.000\.zkey$/);
@@ -256,13 +256,13 @@ describe('compile cmd', () => {
 
   describe('compile errors', () => {
     it('raises appropiate error', async ({compiler}) => {
-      const source = mls(
-        'pragma circom 2.2.2;',
-        'template Test() {',
-        '  output signal a <== 10', // <-- Missing ; at the end of the line
-        '}',
-        'component main = Test();'
-      );
+      const source = dedent`
+        pragma circom 2.2.2;
+        template Test() {
+          output signal a <== 10 // <-- Missing ; at the end of the li
+        }
+        component main = Test();
+      `;
 
       await expect(compiler.compileStr(source)).rejects.toSatisfy((e: CircomCompileError) => {
         expect(e).toBeInstanceOf(CircomCompileError);
@@ -277,14 +277,14 @@ describe('compile cmd', () => {
 
   describe('runtime error', () => {
     it('raises appropiate error', async ({compiler}) => {
-      const source = mls(
-        'pragma circom 2.2.2;',
-        'template Test() {',
-        '  input signal a;',
-        '  a === 11;',
-        '}',
-        'component main = Test();'
-      );
+      const source = dedent`
+        pragma circom 2.2.2;
+        template Test() {
+          input signal a;
+          a === 11;
+        }
+        component main = Test();
+      `;
 
       const circuit = await compiler.compileStr(source);
       await expect(circuit.witness({a: '12'})).rejects.toSatisfy((e) => {
@@ -292,7 +292,7 @@ describe('compile cmd', () => {
         const typed = e as CircomRuntimeError;
         expect(typed.message).toEqual('error during witness generation');
         expect(typed.execMessage).toMatch(/Error in template Test_0 line: 4/);
-        expect(typed.inputSignals).toEqual({ a: '12' });
+        expect(typed.inputSignals).toEqual({a: '12'});
         expect(typed.wasmPath).toMatch(/\.wasm$/);
         return true;
       });
