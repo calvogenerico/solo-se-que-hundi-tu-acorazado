@@ -132,6 +132,11 @@ describe('compile cmd', () => {
   });
 
   it('proofs can be verified', async ({ compiler }) => {
-    throw new Error('not implemented yet')
+    const circuit = await compiler.compileStr(someCircuitCode);
+    const witness = await circuit.witness({ a: '11' });
+    const proof = await witness.proveGroth16();
+
+    const verification = await circuit.groth16Verify(proof)
+    expect(verification).toBe(true);
   });
 });

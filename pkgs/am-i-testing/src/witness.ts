@@ -17,6 +17,6 @@ export class Witness {
       this.filePath
     );
 
-    return new Proof(publicSignals, proof);
+    return new Proof(publicSignals, proof, 'groth16');
   }
 }

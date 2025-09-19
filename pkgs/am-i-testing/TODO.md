@@ -1,5 +1,5 @@
 - support plonk
-- find a way to add library roots to compiler
+- find a way to add library roots to compiler [<-- here now]
 - clear compile errors easy to catch with details.
 - clear runtime error easy to catch with details.
 - helper to download perpetual powers of tau.

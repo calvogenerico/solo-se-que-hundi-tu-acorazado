@@ -3,9 +3,20 @@ import { join, parse } from "node:path";
 import { wtns, type CircuitSignals } from 'snarkjs';
 import { Witness } from "./witness.ts";
 import type { Option } from "nochoices";
-import { zKey } from 'snarkjs';
+import { zKey, groth16 } from 'snarkjs';
 import { random } from "nanoid";
 import { existsSync } from 'node:fs';
+import type { Proof } from "./proof.ts";
+
+type JsonLike = {
+  [key: string]: JsonLikeKey
+};
+
+type JsonLikeKey = number | string | null | JsonLike | JsonLikeKey[]
+
+type Brand<K, T> = K & { __brand: T }
+
+type VerificationKey = Brand<JsonLikeKey, 'vKey'>;
 
 export class Circuit {
   mainFilePath: string;
@@ -81,6 +92,14 @@ export class Circuit {
     return this.zkeyFinalPath();
   }
 
+  async vKey(): Promise<VerificationKey> {
+    return zKey.exportVerificationKey(await this.generateGroth16Zkey());
+  }
+
+  async saveVkey(): Promise<void> {
+    await writeFile(this.vKeyPath(), JSON.stringify(this.vKey()));
+  }
+
   zkeyInitialPath(): string {
     return this.zkeyPath(0);
   }
@@ -95,5 +114,15 @@ export class Circuit {
 
   witnessPath(): string {
     return join(this.artifactDir, `trace.wts`);
+  }
+
+  vKeyPath(): string {
+    return join(this.artifactDir, `${this.name}.vkey`);
+  }
+
+  async groth16Verify(proof: Proof): Promise<boolean> {
+    const vkey = await this.vKey();
+    console.log(vkey);
+    return groth16.verify(vkey, proof.publicSignals, proof.proof)
   }
 }

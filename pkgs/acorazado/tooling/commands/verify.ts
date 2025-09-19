@@ -20,7 +20,6 @@ async function verify(circuitPath: string) {
     throw new Error(`proof file not found at ${proof}. Maybe proof step is missing?`);
   }
 
-  `verification_key.json] [public.json] [proof.json]`
   await $`pnpm snarkjs g16v ${vkey} ${pubArgs} ${proof}`
 }
 
