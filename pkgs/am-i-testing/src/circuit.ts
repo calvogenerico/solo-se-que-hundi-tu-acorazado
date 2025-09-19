@@ -9,8 +9,13 @@ import type { Proof } from "./proof.ts";
 import type { Brand, JsonLike } from "./types.ts";
 import { createHash } from 'node:crypto';
 import { stringify } from 'canonical-json'
+import { CircomRuntimeError } from "./errors.ts";
 
 type VerificationKey = Brand<JsonLike, 'vKey'>;
+
+type TypedWitnessError = {
+  message?: string;
+}
 
 function quickHash(obj: JsonLike, size: number): string {
   const text = stringify(obj);
@@ -51,11 +56,19 @@ export class Circuit {
     const text = await readFile(this.inputPath(inputsObj)).then(buf => buf.toString());
     const outPath = this.witnessPath(inputsObj);
 
-    await wtns.calculate(
-      JSON.parse(text) as CircuitSignals,
-      join(this.artifactDir, `${this.name}_js`, `${this.name}.wasm`),
-      outPath
-    );
+    const inputSignals = JSON.parse(text);
+    const wasmPath = join(this.artifactDir, `${this.name}_js`, `${this.name}.wasm`);
+    try {
+      await wtns.calculate(
+        inputSignals as CircuitSignals,
+        wasmPath,
+        outPath
+      );
+    } catch (e) {
+      const typedError = e as TypedWitnessError;
+      throw new CircomRuntimeError(inputSignals, wasmPath, typedError.message);
+    }
+
 
     return new Witness(outPath, this);
   }

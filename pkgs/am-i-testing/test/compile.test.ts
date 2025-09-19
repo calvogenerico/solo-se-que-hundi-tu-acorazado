@@ -1,8 +1,10 @@
 import { describe, expect, it as baseIt } from "vitest";
 import { readFile } from 'node:fs/promises'
+import { readFileSync } from 'node:fs'
 import { CircomCompiler } from "../src/circom-compiler.ts";
 import { r1cs, wtns } from 'snarkjs';
 import { join } from "node:path";
+import { CircomCompileError, CircomRuntimeError } from "../src/errors.ts";
 
 type Fixture = {
   compiler: CircomCompiler
@@ -250,5 +252,50 @@ describe('compile cmd', () => {
     expect(circuit.zkeyFinalPath()).toMatch(/\.final\.zkey$/);
     expect(circuit.witnessPath({a: '1'})).toMatch(/\.wts$/);
     expect(circuit.inputPath({a: '1'})).toMatch(/\.inputs\.json$/);
+  });
+
+  describe('compile errors', () => {
+    it('raises appropiate error', async ({compiler}) => {
+      const source = mls(
+        'pragma circom 2.2.2;',
+        'template Test() {',
+        '  output signal a <== 10', // <-- Missing ; at the end of the line
+        '}',
+        'component main = Test();'
+      );
+
+      await expect(compiler.compileStr(source)).rejects.toSatisfy((e: CircomCompileError) => {
+        expect(e).toBeInstanceOf(CircomCompileError);
+        const mainCode = readFileSync(e.mainPath).toString();
+        expect(mainCode).toEqual(source);
+        expect(e.outputCode).toEqual(1);
+        expect(e.errorMsg).toMatch(/Missing semicolon/);
+        return true;
+      })
+    });
+  });
+
+  describe('runtime error', () => {
+    it('raises appropiate error', async ({compiler}) => {
+      const source = mls(
+        'pragma circom 2.2.2;',
+        'template Test() {',
+        '  input signal a;',
+        '  a === 11;',
+        '}',
+        'component main = Test();'
+      );
+
+      const circuit = await compiler.compileStr(source);
+      await expect(circuit.witness({a: '12'})).rejects.toSatisfy((e) => {
+        expect(e).toBeInstanceOf(CircomRuntimeError);
+        const typed = e as CircomRuntimeError;
+        expect(typed.message).toEqual('error during witness generation');
+        expect(typed.execMessage).toMatch(/Error in template Test_0 line: 4/);
+        expect(typed.inputSignals).toEqual({ a: '12' });
+        expect(typed.wasmPath).toMatch(/\.wasm$/);
+        return true;
+      });
+    });
   });
 });

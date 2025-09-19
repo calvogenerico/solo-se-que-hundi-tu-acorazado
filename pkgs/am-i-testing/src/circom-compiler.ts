@@ -6,8 +6,14 @@ import { Circuit } from "./circuit.ts";
 import { Option } from "nochoices";
 import { exec as nodeExec } from "node:child_process";
 import { promisify } from 'node:util';
+import { CircomCompileError } from "./errors.ts";
 
 const exec = promisify(nodeExec);
+
+type ExecErr = {
+  code: number;
+  stderr: string;
+}
 
 type CircomCompilerOpts = {
   compilerPath?: string;
@@ -44,7 +50,17 @@ export class CircomCompiler {
 
     const libsCmd = this.libraryRoots.map(root => [ '-l', root ]).flat().join(' ');
 
-    await exec(`${this.circomPath} ${mainFilePath} ${libsCmd} --r1cs --wasm --sym -o ${outputPat}`);
+    try {
+      await exec(`${this.circomPath} ${mainFilePath} ${libsCmd} --r1cs --wasm --sym -o ${outputPat}`);
+    } catch (e) {
+      const typedError = e as ExecErr;
+
+      throw new CircomCompileError(
+        mainFilePath,
+        typedError.code,
+        typedError.stderr,
+      );
+    }
 
     return new Circuit(
       mainFilePath,
