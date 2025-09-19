@@ -1,6 +1,6 @@
 import { temporaryDirectory } from "tempy";
 import { nanoid } from "nanoid";
-import { join } from "node:path";
+import { join, parse } from "node:path";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { Circuit } from "./circuit.ts";
 import { Option } from "nochoices";
@@ -42,12 +42,17 @@ export class CircomCompiler {
   async compileStr(source: string, name?: string): Promise<Circuit> {
     const id = name ?? nanoid(8);
 
-    const outputPat = join(this.outDir, id);
-    await mkdir(outputPat, {recursive: true});
     const mainFilePath = join(await this.tempInputDir(), `${id}.circom`);
-    const inputsFilePath = join(await this.tempInputDir(), `${id}-input.json`);
     await writeFile(mainFilePath, source);
 
+    return this.compileFile(mainFilePath)
+  }
+
+  async compileFile(filePath: string): Promise<Circuit> {
+    const parsed = parse(filePath)
+    const outputPat = join(this.outDir, parsed.name);
+    await mkdir(outputPat, {recursive: true});
+    const mainFilePath = filePath;
     const libsCmd = this.libraryRoots.map(root => [ '-l', root ]).flat().join(' ');
 
     try {
@@ -62,12 +67,7 @@ export class CircomCompiler {
       );
     }
 
-    return new Circuit(
-      mainFilePath,
-      inputsFilePath,
-      outputPat,
-      this.ptauPath
-    );
+    return new Circuit(mainFilePath, outputPat, this.ptauPath);
   }
 
   async clean() {

@@ -1,11 +1,12 @@
 import { describe, expect, it as baseIt } from "vitest";
-import { readFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import { CircomCompiler } from "../src/circom-compiler.ts";
 import { r1cs, wtns } from 'snarkjs';
 import { join } from "node:path";
 import { CircomCompileError, CircomRuntimeError } from "../src/errors.ts";
 import dedent from "dedent";
+import { temporaryFile } from "tempy";
 
 type Fixture = {
   compiler: CircomCompiler
@@ -298,4 +299,17 @@ describe('compile cmd', () => {
       });
     });
   });
+
+  describe('#compileFile', async () => {
+    it('can do full round with a valid circuit', async ({ compiler }) => {
+      const file = temporaryFile({ extension: 'circom' });
+      await writeFile(file, someCircuitCode);
+
+      const circuit= await compiler.compileFile(file);
+      const witness = await circuit.witness({ a: '1' });
+      const proof = await witness.proveGroth16();
+      const verification = await circuit.groth16Verify(proof);
+      expect(verification).toBe(true);
+    })
+  })
 });

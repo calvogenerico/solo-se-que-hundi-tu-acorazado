@@ -24,14 +24,12 @@ function quickHash(obj: JsonLike, size: number): string {
 
 export class Circuit {
   mainFilePath: string;
-  inputsFilePath: string;
   artifactDir: string;
   private name: string;
   private ptauPath: Option<string>;
 
-  constructor(mainPath: string, inputsFilePath: string, artifactDir: string, ptauPath: Option<string>) {
+  constructor(mainPath: string, artifactDir: string, ptauPath: Option<string>) {
     this.mainFilePath = mainPath;
-    this.inputsFilePath = inputsFilePath;
     this.artifactDir = artifactDir;
     this.name = parse(this.mainFilePath).name;
     this.ptauPath = ptauPath;

@@ -2,4 +2,5 @@
 - [x] find a way to add library roots to compiler
 - [x] clear compile errors easy to catch with details.
 - [x] clear runtime error easy to catch with details.
+- [ ] compile from file
 - [ ] helper to download perpetual powers of tau.
