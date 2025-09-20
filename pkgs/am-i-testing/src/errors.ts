@@ -3,15 +3,19 @@ export class CircomCompileError extends Error {
   outputCode: number;
   errorMsg: string;
   constructor(entryPath: string, code: number, errorMsg: string) {
-    super('error compiling circuit');
+    super(errorMsg);
     this.mainPath = entryPath;
     this.outputCode = code;
     this.errorMsg = errorMsg;
   }
+
+  toString() {
+    return `Error: ${this.errorMsg}`;
+  }
 }
 
 export class CircomRuntimeError extends Error {
-  execMessage?: string;
+  execMessage: string | undefined;
   inputSignals: unknown;
   wasmPath: string;
 

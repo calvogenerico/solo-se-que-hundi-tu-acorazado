@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join, parse } from "node:path";
 import { type CircuitSignals, groth16, wtns, zKey } from 'snarkjs';
-import { Witness } from "./witness.ts";
+import { Witness } from "./witness.js";
 import type { Option } from "nochoices";
 import { random } from "nanoid";
 import { existsSync } from 'node:fs';
@@ -9,7 +9,7 @@ import type { Proof } from "./proof.ts";
 import type { Brand, JsonLike } from "./types.ts";
 import { createHash } from 'node:crypto';
 import { stringify } from 'canonical-json'
-import { CircomRuntimeError } from "./errors.ts";
+import { CircomRuntimeError } from "./errors.js";
 
 type VerificationKey = Brand<JsonLike, 'vKey'>;
 

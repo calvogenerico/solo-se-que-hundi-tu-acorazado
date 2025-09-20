@@ -1,6 +1,6 @@
-import type { Circuit } from "./circuit.ts";
+import type { Circuit } from "./circuit.js";
 import { groth16 } from 'snarkjs';
-import { Proof } from "./proof.ts";
+import { Proof } from "./proof.js";
 
 export class Witness {
   filePath: string;

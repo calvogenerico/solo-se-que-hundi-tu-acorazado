@@ -2,11 +2,12 @@ import { temporaryDirectory } from "tempy";
 import { nanoid } from "nanoid";
 import { join, parse } from "node:path";
 import { mkdir, rm, writeFile } from "node:fs/promises";
-import { Circuit } from "./circuit.ts";
+import { Circuit } from "./circuit.js";
 import { Option } from "nochoices";
 import { exec as nodeExec } from "node:child_process";
 import { promisify } from 'node:util';
-import { CircomCompileError } from "./errors.ts";
+import { CircomCompileError } from "./errors.js";
+import * as process from "node:process";
 
 const exec = promisify(nodeExec);
 
@@ -27,11 +28,13 @@ export class CircomCompiler {
   private outDir: string;
   private ptauPath: Option<string>;
   private libraryRoots: string[];
+  private cwd: string;
 
   constructor(opts: CircomCompilerOpts = {}) {
     this.circomPath = opts.compilerPath ?? 'circom';
     this.outDir = opts.outDir ?? temporaryDirectory();
-    this.ptauPath = Option.fromNullable(opts.ptauPath);
+    this.cwd = opts.cwd ?? process.cwd();
+    this.ptauPath = Option.fromNullable(opts.ptauPath).map(ptauPath => join(this.cwd, ptauPath));
     this.libraryRoots = [];
   }
 
@@ -53,10 +56,11 @@ export class CircomCompiler {
     const outputPat = join(this.outDir, parsed.name);
     await mkdir(outputPat, {recursive: true});
     const mainFilePath = filePath;
-    const libsCmd = this.libraryRoots.map(root => [ '-l', root ]).flat().join(' ');
+    const libsCmd = this.libraryRoots.map(root => ['-l', root]).flat().join(' ');
 
     try {
-      await exec(`${this.circomPath} ${mainFilePath} ${libsCmd} --r1cs --wasm --sym -o ${outputPat}`);
+      const a = await exec('pwd', {cwd: this.cwd})
+      await exec(`${this.circomPath} ${mainFilePath} ${libsCmd} --r1cs --wasm --sym -o ${outputPat}`, {cwd: this.cwd});
     } catch (e) {
       const typedError = e as ExecErr;
 

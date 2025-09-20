@@ -1,10 +1,10 @@
 import { describe, expect, it as baseIt } from "vitest";
 import { readFile, writeFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
-import { CircomCompiler } from "../src/circom-compiler.ts";
+import { CircomCompiler } from "../src/index.js";
 import { r1cs, wtns } from 'snarkjs';
 import { join } from "node:path";
-import { CircomCompileError, CircomRuntimeError } from "../src/errors.ts";
+import { CircomCompileError, CircomRuntimeError } from "../src/errors.js";
 import dedent from "dedent";
 import { temporaryFile } from "tempy";
 
