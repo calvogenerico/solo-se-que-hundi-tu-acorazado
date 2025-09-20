@@ -142,7 +142,7 @@ describe('compile cmd', () => {
     const witness = await circuit.witness({a: '11'});
     const proof = await witness.proveGroth16();
 
-    const verification = await circuit.groth16Verify(proof)
+    const verification = await circuit.groth16Verify(proof);
     expect(verification).toBe(true);
   });
 
@@ -161,7 +161,7 @@ describe('compile cmd', () => {
         c <== Add()(a, b);
       }
       component main = Test();
-    `
+    `;
 
     const circuit = await compiler.compileStr(source);
 
@@ -300,6 +300,14 @@ describe('compile cmd', () => {
     });
   });
 
+  describe('Circuit#fullProve', async () => {
+    it('', async ({ compiler }) => {
+      const circuit = await compiler.compileStr(someCircuitCode);
+      const proof = await circuit.fullProveGroth16({ a: '10' });
+      expect(proof.publicSignals).toEqual(['11']);
+    })
+  });
+
   describe('#compileFile', async () => {
     it('can do full round with a valid circuit', async ({ compiler }) => {
       const file = temporaryFile({ extension: 'circom' });
@@ -310,6 +318,6 @@ describe('compile cmd', () => {
       const proof = await witness.proveGroth16();
       const verification = await circuit.groth16Verify(proof);
       expect(verification).toBe(true);
-    })
+    });
   })
 });

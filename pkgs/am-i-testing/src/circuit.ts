@@ -100,6 +100,11 @@ export class Circuit {
     return this.zkeyFinalPath();
   }
 
+  async fullProveGroth16(inputs: CircuitSignals) {
+    const witness = await this.witness(inputs);
+    return await witness.proveGroth16();
+  }
+
   async groth16Verify(proof: Proof): Promise<boolean> {
     const vkey = await this.vKey();
     return groth16.verify(vkey, proof.publicSignals, proof.proof)
