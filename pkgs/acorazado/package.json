@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
-  "private": true,
   "scripts": {
     "tool": "tsx ./tooling/run.ts",
     "test": "pnpm vitest run"
