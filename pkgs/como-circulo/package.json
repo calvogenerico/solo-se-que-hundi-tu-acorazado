@@ -1,6 +1,6 @@
 {
   "name": "@solose-ts/como-circulo",
-  "version": "0.1.1-beta1",
+  "version": "0.1.1-beta2",
   "packageManager": "pnpm@10.15.0",
   "type": "module",
   "module": "./dist/index.js",
@@ -25,7 +25,7 @@
     "nanoid": "^5.1.5",
     "nochoices": "^1.1.5",
     "snarkjs": "^0.7.5",
-    "zx": "^8.8.1"
+    "tempy": "^3.1.0"
   },
   "peerDependencies": {
     "vitest": ">3.2.0"
@@ -36,7 +36,6 @@
     "esbuild": "^0.25.10",
     "esbuild-node-externals": "^1.18.0",
     "rimraf": "^6.0.1",
-    "tempy": "^3.1.0",
     "typescript": "^5",
     "vitest": "^3.2.0"
   }

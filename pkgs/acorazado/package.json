@@ -1,6 +1,6 @@
 {
   "name": "@solose-ts/acorazado",
-  "version": "0.1.1-beta1",
+  "version": "0.1.1-beta2",
   "module": "index.ts",
   "type": "module",
   "private": false,

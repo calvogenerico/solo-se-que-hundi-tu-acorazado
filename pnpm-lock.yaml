@@ -74,9 +74,6 @@ importers:
       snarkjs:
         specifier: ^0.7.5
         version: 0.7.5
-      zx:
-        specifier: ^8.8.1
-        version: 8.8.1
     devDependencies:
       '@types/node':
         specifier: ^24.3.3
