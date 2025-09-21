@@ -293,7 +293,7 @@ describe('compile cmd', () => {
         const mainCode = readFileSync(e.mainPath).toString();
         expect(mainCode).toEqual(source);
         expect(e.outputCode).toEqual(1);
-        expect(e.errorMsg).toMatch(/Missing semicolon/);
+        expect(e.message).toMatch(/Missing semicolon/);
         return true;
       })
     });
@@ -314,8 +314,7 @@ describe('compile cmd', () => {
       await expect(circuit.witness({a: '12'})).rejects.toSatisfy((e) => {
         expect(e).toBeInstanceOf(CircomRuntimeError);
         const typed = e as CircomRuntimeError;
-        expect(typed.message).toEqual('error during witness generation');
-        expect(typed.execMessage).toMatch(/Error in template Test_0 line: 4/);
+        expect(typed.message).toMatch(/Error in template Test_0 line: 4/);
         expect(typed.inputSignals).toEqual({a: '12'});
         expect(typed.wasmPath).toMatch(/\.wasm$/);
         return true;

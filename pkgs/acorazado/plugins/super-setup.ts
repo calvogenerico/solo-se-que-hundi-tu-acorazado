@@ -17,28 +17,39 @@ function isCodeAndSignals(input: any, name: string): asserts input is CodeAndSig
   }
 }
 
-async function wrap<T>(fn: () => Promise<void>): Promise<ExpectationResult> {
+type WrapOpts = {
+  onCompileError?: (err: CircomCompileError) => Promise<ExpectationResult> | ExpectationResult
+  onRuntimeErrorError?: (err: CircomRuntimeError) => Promise<ExpectationResult> | ExpectationResult
+  onSuccess: () => Promise<ExpectationResult> | ExpectationResult
+}
+
+async function wrap(fn: () => Promise<void>, opts: WrapOpts): Promise<ExpectationResult> {
   try {
     await fn();
   } catch (e) {
     if (e instanceof CircomCompileError) {
-      return {
-        pass: false,
-        message: () => `Compilation error:\n${e.errorMsg}`
+      if (opts.onCompileError === undefined) {
+        return {
+          pass: false,
+          message: () => `Compilation error:\n${e.errorMsg}`
+        }
+      } else {
+        return opts.onCompileError(e)
       }
     }
     if (e instanceof CircomRuntimeError) {
-      return {
-        pass: false,
-        message: () => `Error during witness calculation:\n\n${e.execMessage}`
+      if (opts.onRuntimeErrorError === undefined) {
+        return {
+          pass: false,
+          message: () => `Error during witness calculation:\n\n${e.execMessage}`
+        }
+      } else {
+        return opts.onRuntimeErrorError(e)
       }
     }
     throw e;
   }
-  return {
-    pass: true,
-    message: () => 'ok'
-  }
+  return opts.onSuccess();
 }
 
 function compiler(): CircomCompiler {
@@ -46,7 +57,12 @@ function compiler(): CircomCompiler {
   return new CircomCompiler(opts);
 }
 
-
+const returnSuccess = (): ExpectationResult => {
+  return {
+    pass: true,
+    message: () => 'ok'
+  }
+}
 
 expect.extend({
   toCircomExecOk: async (sourceCode) => {
@@ -57,7 +73,7 @@ expect.extend({
     return wrap(async () => {
       const circuit = await compiler().compileStr(sourceCode);
       await circuit.witness({});
-    });
+    }, {onSuccess: returnSuccess});
   },
   toCircomExecOkWithSignals: async (codeAndSignals) => {
     isCodeAndSignals(codeAndSignals, 'received');
@@ -65,7 +81,7 @@ expect.extend({
     return wrap(async () => {
       const circuit = await compiler().compileStr(codeAndSignals.source);
       await circuit.witness(codeAndSignals.signals);
-    });
+    }, {onSuccess: returnSuccess});
   },
   toCircomExecAndOutputs: async (sourceCode, expectedSignals: string[]) => {
     if (typeof sourceCode !== 'string') {
@@ -76,7 +92,46 @@ expect.extend({
       const circuit = await compiler().compileStr(sourceCode);
       const proof = await circuit.fullProveGroth16({});
       expect(proof.publicSignals).toEqual(expectedSignals);
-    })
+    }, {onSuccess: returnSuccess})
+  },
+  toCircomCompileError: async (sourceCode: string) => {
+    const onCompileError = (_err: CircomCompileError) => {
+      return {
+        pass: true,
+        message: () => 'ok'
+      }
+    }
+
+    const onSuccess = () => {
+      return {
+        pass: false,
+        message: () => 'Expected to fail to compile, but compilation went ok'
+      }
+    }
+
+    return wrap(async () => {
+      await compiler().compileStr(sourceCode);
+    }, {onCompileError, onSuccess});
+  },
+  toCircomCompileErrorThat: async (sourceCode: string, handler: (e: CircomCompileError) => void | Promise<void>) => {
+    const onCompileError = async (err: CircomCompileError) => {
+      await handler(err);
+      return {
+        pass: true,
+        message: () => 'ok'
+      }
+    }
+
+    const onSuccess = () => {
+      return {
+        pass: false,
+        message: () => 'Expected to fail to compile, but compilation went ok'
+      }
+    }
+
+    return wrap(async () => {
+      await compiler().compileStr(sourceCode);
+    }, {onCompileError, onSuccess});
   }
 });
 
@@ -84,9 +139,14 @@ interface CircomMatchers<R = unknown> {
   toCircomExecOk: () => Promise<R>
   toCircomExecOkWithSignals: () => Promise<R>
   toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<R>
+  toCircomCompileError: () => Promise<R>
+  toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<R>
 }
 
 declare module 'vitest' {
-  interface Assertion<T = any> extends CircomMatchers<T> {}
-  interface AsymmetricMatchersContaining extends CircomMatchers {}
+  interface Assertion<T = any> extends CircomMatchers<T> {
+  }
+
+  interface AsymmetricMatchersContaining extends CircomMatchers {
+  }
 }
