@@ -1,6 +1,6 @@
 import type { Vite, VitestPluginContext } from "vitest/node";
-import { join } from "node:path";
 import { type CircomCompilerOpts } from "@solose-ts/am-i-testing";
+
 
 declare module 'vitest' {
   export interface ProvidedContext {
@@ -8,19 +8,17 @@ declare module 'vitest' {
   }
 }
 
-export default function useCircomCompiler(circomCompilerOpts: CircomCompilerOpts = {}): Vite.Plugin {
+export function useCircomCompiler(circomCompilerOpts: CircomCompilerOpts = {}): Vite.Plugin {
   return {
     name: 'vitest:my-super-plugin',
     config: () => ({
       test: {
-        setupFiles: [join(import.meta.dirname, 'super-setup.ts')]
+        setupFiles: [import.meta.resolve('./register-matchers.js')]
       },
     }),
     configureVitest(context: VitestPluginContext) {
       context.vitest.provide('circomCompilerOpts', circomCompilerOpts);
     }
-    // configureVitest(context: VitestPluginContext) {
-    //   context.vitest.glo
-    // }
   };
 }
+

@@ -1,5 +1,5 @@
 import { defineConfig } from "vitest/config";
-import useCircomCompiler from "./plugins/use-circom-compiler.ts";
+import { useCircomCompiler } from "@solose-ts/vitest-circom";
 import path from "node:path";
 
 export default defineConfig({

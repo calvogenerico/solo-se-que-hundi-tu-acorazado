@@ -31,7 +31,7 @@ async function wrap(fn: () => Promise<void>, opts: WrapOpts): Promise<Expectatio
       if (opts.onCompileError === undefined) {
         return {
           pass: false,
-          message: () => `Compilation error:\n${e.errorMsg}`
+          message: () => `Compilation error:\n${e.message}`
         }
       } else {
         return opts.onCompileError(e)
@@ -41,7 +41,7 @@ async function wrap(fn: () => Promise<void>, opts: WrapOpts): Promise<Expectatio
       if (opts.onRuntimeErrorError === undefined) {
         return {
           pass: false,
-          message: () => `Error during witness calculation:\n\n${e.execMessage}`
+          message: () => `Error during witness calculation:\n\n${e.message}`
         }
       } else {
         return opts.onRuntimeErrorError(e)

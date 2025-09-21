@@ -1,5 +1,5 @@
 {
-  "name": "@solose-ts/am-i-testing",
+  "name": "@solose-ts/vitest-circom",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.15.0",
@@ -16,9 +16,6 @@
       }
     }
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "clean": "rimraf dist",
     "prebuild": "pnpm run clean",
@@ -26,23 +23,12 @@
     "build:watch": "tsc -p tsconfig.build.json --watch"
   },
   "dependencies": {
-    "canonical-json": "^0.2.0",
-    "dedent": "^1.7.0",
-    "nanoid": "^5.1.5",
-    "nochoices": "^1.1.5",
-    "snarkjs": "^0.7.5",
-    "zx": "^8.8.1"
-  },
-  "peerDependencies": {
-    "vitest": ">3.2.0"
+    "@solose-ts/am-i-testing": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/snarkjs": "^0.7.9",
-    "esbuild": "^0.25.10",
-    "esbuild-node-externals": "^1.18.0",
+    "@types/node": "^24.3.3",
     "rimraf": "^6.0.1",
-    "tempy": "^3.1.0",
-    "vitest": "^3.2.0"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }
