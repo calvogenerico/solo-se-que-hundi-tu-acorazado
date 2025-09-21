@@ -65,7 +65,6 @@ export class CircomCompiler {
     const libsCmd = this.libraryRoots.map(root => ['-l', root]).flat().join(' ');
 
     try {
-      const a = await exec('pwd', {cwd: this.cwd})
       await exec(`${this.circomPath} ${mainFilePath} ${libsCmd} --r1cs --wasm --sym -o ${outputPat}`, {cwd: this.cwd});
     } catch (e) {
       const typedError = e as ExecErr;

@@ -1,5 +1,5 @@
 import type { Vite, VitestPluginContext } from "vitest/node";
-import { CircomCompileError, type CircomCompilerOpts } from "@solose-ts/como-circulo";
+import { type CircomCompileError, type CircomCompilerOpts, type CircomRuntimeError } from "@solose-ts/como-circulo";
 
 interface CircomMatchers<R = unknown> {
   toCircomExecOk: () => Promise<R>
@@ -7,6 +7,8 @@ interface CircomMatchers<R = unknown> {
   toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<R>
   toCircomCompileError: () => Promise<R>
   toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<R>
+  toCircomExecWithError: () => Promise<R>
+  toCircomExecWithErrorThat: (handler: (e: CircomRuntimeError) => void | Promise<void>) => Promise<R>
 }
 
 declare module 'vitest' {

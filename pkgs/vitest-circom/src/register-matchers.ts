@@ -19,7 +19,7 @@ function isCodeAndSignals(input: any, name: string): asserts input is CodeAndSig
 
 type WrapOpts = {
   onCompileError?: (err: CircomCompileError) => Promise<ExpectationResult> | ExpectationResult
-  onRuntimeErrorError?: (err: CircomRuntimeError) => Promise<ExpectationResult> | ExpectationResult
+  onRuntimeError?: (err: CircomRuntimeError) => Promise<ExpectationResult> | ExpectationResult
   onSuccess: () => Promise<ExpectationResult> | ExpectationResult
 }
 
@@ -38,13 +38,13 @@ async function wrap(fn: () => Promise<void>, opts: WrapOpts): Promise<Expectatio
       }
     }
     if (e instanceof CircomRuntimeError) {
-      if (opts.onRuntimeErrorError === undefined) {
+      if (opts.onRuntimeError === undefined) {
         return {
           pass: false,
           message: () => `Error during witness calculation:\n\n${e.message}`
         }
       } else {
-        return opts.onRuntimeErrorError(e)
+        return opts.onRuntimeError(e)
       }
     }
     throw e;
@@ -94,7 +94,11 @@ expect.extend({
       expect(proof.publicSignals).toEqual(expectedSignals);
     }, {onSuccess: returnSuccess})
   },
-  toCircomCompileError: async (sourceCode: string) => {
+  toCircomCompileError: async (sourceCode: any) => {
+    if (typeof sourceCode !== 'string') {
+      throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
+    }
+
     const onCompileError = (_err: CircomCompileError) => {
       return {
         pass: true,
@@ -113,7 +117,11 @@ expect.extend({
       await compiler().compileStr(sourceCode);
     }, {onCompileError, onSuccess});
   },
-  toCircomCompileErrorThat: async (sourceCode: string, handler: (e: CircomCompileError) => void | Promise<void>) => {
+  toCircomCompileErrorThat: async (sourceCode: any, handler: (e: CircomCompileError) => void | Promise<void>) => {
+    if (typeof sourceCode !== 'string') {
+      throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
+    }
+
     const onCompileError = async (err: CircomCompileError) => {
       await handler(err);
       return {
@@ -132,6 +140,57 @@ expect.extend({
     return wrap(async () => {
       await compiler().compileStr(sourceCode);
     }, {onCompileError, onSuccess});
+  },
+
+  toCircomExecWithError: async (sourceCode: any) => {
+    if (typeof sourceCode !== 'string') {
+      throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
+    }
+
+    const onRuntimeError = async (_err: CircomRuntimeError) => {
+      return {
+        pass: true,
+        message: () => 'ok'
+      }
+    }
+
+    const onSuccess = () => {
+      return {
+        pass: false,
+        message: () => 'Expected to fail to execute, but execution went ok'
+      }
+    }
+
+    return wrap(async () => {
+      const circuit = await compiler().compileStr(sourceCode);
+      await circuit.witness({});
+    }, {onRuntimeError, onSuccess})
+  },
+
+  toCircomExecWithErrorThat: async (sourceCode: any, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
+    if (typeof sourceCode !== 'string') {
+      throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
+    }
+
+    const onRuntimeError = async (err: CircomRuntimeError) => {
+      await handler(err);
+      return {
+        pass: true,
+        message: () => 'ok'
+      }
+    }
+
+    const onSuccess = () => {
+      return {
+        pass: false,
+        message: () => 'Expected to fail to execute, but execution went ok'
+      }
+    }
+
+    return wrap(async () => {
+      const circuit = await compiler().compileStr(sourceCode);
+      await circuit.witness({});
+    }, {onRuntimeError, onSuccess});
   }
 });
 
