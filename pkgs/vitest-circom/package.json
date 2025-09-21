@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.15.0",
   "type": "module",
+  "main": "dist/index.js",
   "exports": {
     ".": {
       "import": {
@@ -23,7 +24,8 @@
     "build:watch": "tsc -p tsconfig.build.json --watch"
   },
   "dependencies": {
-    "@solose-ts/como-circulo": "workspace:*"
+    "@solose-ts/como-circulo": "workspace:*",
+    "@vitest/expect": "^3.2.4"
   },
   "devDependencies": {
     "@types/node": "^24.3.3",

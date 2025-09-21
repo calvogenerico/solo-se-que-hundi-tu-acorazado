@@ -10,6 +10,7 @@ export default defineConfig({
   plugins: [useCircomCompiler({
     cwd: import.meta.dirname,
     ptauPath: path.join('tests', 'fixture', 'powersoftau_09.ptau'),
+    compilerPath: path.join(import.meta.dirname, '..', '..', 'circom'),
     libraryRoots: [
       path.join('circuits'),
       path.join('node_modules'),

@@ -15,6 +15,7 @@ type Fixture = {
 const it = baseIt.extend<Fixture>({
   compiler: async ({}, use) => {
     const compiler = new CircomCompiler({
+      compilerPath: join(import.meta.dirname, '..', '..', '..' ,'circom'),
       ptauPath: join(import.meta.dirname, 'ptau', 'powersoftau_09.ptau')
     });
     await use(compiler);

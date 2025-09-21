@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.15.0",
   "type": "module",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
       "import": {
@@ -38,12 +39,13 @@
     "vitest": ">3.2.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@types/node": "^24.3.3",
     "@types/snarkjs": "^0.7.9",
     "esbuild": "^0.25.10",
     "esbuild-node-externals": "^1.18.0",
     "rimraf": "^6.0.1",
     "tempy": "^3.1.0",
+    "typescript": "^5",
     "vitest": "^3.2.0"
   }
 }
