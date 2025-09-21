@@ -1,6 +1,6 @@
 {
   "name": "@solose-ts/como-circulo",
-  "version": "0.1.0",
+  "version": "0.1.1-beta1",
   "packageManager": "pnpm@10.15.0",
   "type": "module",
   "module": "./dist/index.js",
@@ -12,9 +12,6 @@
       }
     }
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "clean": "rimraf dist",
     "prebuild": "pnpm run clean",
