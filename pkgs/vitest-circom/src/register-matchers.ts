@@ -12,9 +12,9 @@ function assertCodeAndSignals(input: unknown, name: string): asserts input is Co
     throw new TypeError(`expected ${name} to be CodeAndSignals but it's not`);
   }
 
-  const casted = input as CodeAndSignals;
+  const casted = input as Partial<CodeAndSignals>;
 
-  if (casted.source !== 'string') {
+  if (typeof casted.source !== 'string') {
     throw new TypeError(`expected ${name} to be CodeAndSignals but it's not`);
   }
 
