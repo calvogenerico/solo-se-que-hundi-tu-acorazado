@@ -14,6 +14,8 @@ jobs:
           version: 8
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
       - name: Install circom
         run: |
           git clone https://github.com/iden3/circom.git ~/circom
