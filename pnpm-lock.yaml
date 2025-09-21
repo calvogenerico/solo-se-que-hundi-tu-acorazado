@@ -10,9 +10,9 @@ importers:
 
   pkgs/acorazado:
     dependencies:
-      '@solose-ts/am-i-testing':
+      '@solose-ts/como-circulo':
         specifier: workspace:*
-        version: link:../am-i-testing
+        version: link:../como-circulo
       circomlib:
         specifier: ^2.0.5
         version: 2.0.5
@@ -57,7 +57,7 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.3.3)(tsx@4.20.5)(yaml@2.8.1)
 
-  pkgs/am-i-testing:
+  pkgs/como-circulo:
     dependencies:
       canonical-json:
         specifier: ^0.2.0
@@ -102,9 +102,9 @@ importers:
 
   pkgs/vitest-circom:
     dependencies:
-      '@solose-ts/am-i-testing':
+      '@solose-ts/como-circulo':
         specifier: workspace:*
-        version: link:../am-i-testing
+        version: link:../como-circulo
     devDependencies:
       '@types/node':
         specifier: ^24.3.3

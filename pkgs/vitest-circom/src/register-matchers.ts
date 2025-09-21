@@ -1,5 +1,5 @@
 import { expect, inject } from "vitest";
-import { CircomCompileError, CircomCompiler, CircomRuntimeError, type CircuitSignals } from "@solose-ts/am-i-testing";
+import { CircomCompileError, CircomCompiler, CircomRuntimeError, type CircuitSignals } from "@solose-ts/como-circulo";
 import { type ExpectationResult } from "@vitest/expect";
 
 type CodeAndSignals = {

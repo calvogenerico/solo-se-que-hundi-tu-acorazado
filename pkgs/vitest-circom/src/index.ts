@@ -1,5 +1,5 @@
 import type { Vite, VitestPluginContext } from "vitest/node";
-import { type CircomCompilerOpts } from "@solose-ts/am-i-testing";
+import { type CircomCompilerOpts } from "@solose-ts/como-circulo";
 
 
 declare module 'vitest' {

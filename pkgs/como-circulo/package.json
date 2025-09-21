@@ -1,5 +1,5 @@
 {
-  "name": "@solose-ts/am-i-testing",
+  "name": "@solose-ts/como-circulo",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.15.0",
@@ -23,7 +23,8 @@
     "clean": "rimraf dist",
     "prebuild": "pnpm run clean",
     "build": "tsc -p tsconfig.build.json",
-    "build:watch": "tsc -p tsconfig.build.json --watch"
+    "build:watch": "tsc -p tsconfig.build.json --watch",
+    "test": "pnpm vitest run"
   },
   "dependencies": {
     "canonical-json": "^0.2.0",

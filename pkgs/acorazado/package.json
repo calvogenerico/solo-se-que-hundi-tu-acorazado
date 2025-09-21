@@ -6,10 +6,10 @@
   "private": true,
   "scripts": {
     "tool": "tsx ./tooling/run.ts",
-    "aaa": "pnpm tool test-all"
+    "test": "pnpm vitest run"
   },
   "dependencies": {
-    "@solose-ts/am-i-testing": "workspace:*",
+    "@solose-ts/como-circulo": "workspace:*",
     "circomlib": "^2.0.5",
     "poseidon-lite": "^0.3.0",
     "snarkjs": "^0.7.5",

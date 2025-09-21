@@ -4,5 +4,8 @@
   "private": true,
   "workspaces": [
     "pkgs/*"
-  ]
+  ],
+  "scripts": {
+    "test": "pnpm run -r test"
+  }
 }

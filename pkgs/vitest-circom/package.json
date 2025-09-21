@@ -23,7 +23,7 @@
     "build:watch": "tsc -p tsconfig.build.json --watch"
   },
   "dependencies": {
-    "@solose-ts/am-i-testing": "workspace:*"
+    "@solose-ts/como-circulo": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.3.3",
