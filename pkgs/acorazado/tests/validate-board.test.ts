@@ -292,7 +292,25 @@ describe('ValidateBoard', () => {
     });
   });
 
-  it('fails if ship2 start is positioned out of bounds in y', async () => {
+  const sourceCode = dedent`
+    pragma circom 2.2.2;
+
+    include "sea.circom";
+    include "common.circom";
+
+    template Test() {
+      // Error out when ship2 positioned out of bounds in x;
+
+      input Ship() ship1;
+      input Ship() ship2;
+
+      ValidateBoard(10, 10)(ship1, ship2);
+    }
+
+    component main = Test();
+  `;
+
+  it('fails if ship2 start is positioned out of bounds in x', async () => {
     const ship1 = [
       '5', // start.x
       '5', // start.y
@@ -307,23 +325,7 @@ describe('ValidateBoard', () => {
       '4', // size
     ];
 
-    const source = dedent`
-      pragma circom 2.2.2;
-
-      include "sea.circom";
-      include "common.circom";
-
-      template Test() {
-        // Error out when ship2 positioned out of bounds in x;
-
-        input Ship() ship1;
-        input Ship() ship2;
-
-        ValidateBoard(10, 10)(ship1, ship2);
-      }
-
-      component main = Test();
-    `;
+    const source = sourceCode;
 
     await expect({
       source,
@@ -337,4 +339,197 @@ describe('ValidateBoard', () => {
     });
   });
 
+
+  it('fails if ship2 start is positioned out of bounds in y', async () => {
+    const ship1 = [
+      '5', // start.x
+      '5', // start.y
+      '0', // isVertical
+      '2', // size
+    ];
+
+    const ship2 = [
+      '3', // start.x
+      '11', // start.y <-- out of bounds
+      '1', // isVertical
+      '4', // size
+    ];
+
+    const source = sourceCode;
+
+    await expect({
+      source,
+      signals: {
+        ship1,
+        ship2
+      }
+    }).toCircomExecWithSignalsAndErrorThat((e) => {
+      expect(e.message).toMatch(/Assert Failed/);
+      expect(e.message).toMatch(/ValidateBoard/);
+    });
+  });
+
+  it('fails when ship1 positioned with the tail out of bounds in x;', async () => {
+    const ship1 = [
+      '9', // start.x
+      '5', // start.y
+      '0', // isVertical
+      '2', // size
+    ];
+
+    const ship2 = [
+      '4', // start.x
+      '4', // start.y
+      '1', // isVertical
+      '4', // size
+    ];
+
+    const source = sourceCode;
+
+    await expect({
+      source,
+      signals: {
+        ship1,
+        ship2
+      }
+    }).toCircomExecWithSignalsAndErrorThat((e) => {
+      expect(e.message).toMatch(/Assert Failed/);
+      expect(e.message).toMatch(/ValidateBoard/);
+    });
+  });
+
+  it('fails when ship1 positioned with the tail out of bounds in y;', async () => {
+    const ship1 = [
+      '5', // start.x
+      '9', // start.y
+      '1', // isVertical
+      '2', // size
+    ];
+
+    const ship2 = [
+      '4', // start.x
+      '4', // start.y
+      '1', // isVertical
+      '4', // size
+    ];
+
+    await expect({
+      source: sourceCode,
+      signals: {
+        ship1,
+        ship2
+      }
+    }).toCircomExecWithSignalsAndErrorThat((e) => {
+      expect(e.message).toMatch(/Assert Failed/);
+      expect(e.message).toMatch(/ValidateBoard/);
+    });
+  });
+
+  it('fails when ship2 positioned with the tail out of bounds in x', async () => {
+    const ship1 = [
+      '5', // start.x
+      '5', // start.y
+      '1', // isVertical
+      '2', // size
+    ];
+
+    const ship2 = [
+      '8', // start.x
+      '4', // start.y
+      '0', // isVertical
+      '4', // size
+    ];
+
+    await expect({
+      source: sourceCode,
+      signals: {
+        ship1,
+        ship2
+      }
+    }).toCircomExecWithSignalsAndErrorThat((e) => {
+      expect(e.message).toMatch(/Assert Failed/);
+      expect(e.message).toMatch(/ValidateBoard/);
+    });
+  });
+
+  it('fails when ship2 positioned with the tail out of bounds in y', async () => {
+    const ship1 = [
+      '5', // start.x
+      '5', // start.y
+      '1', // isVertical
+      '2', // size
+    ];
+
+    const ship2 = [
+      '4', // start.x
+      '8', // start.y
+      '1', // isVertical
+      '4', // size
+    ];
+
+    await expect({
+      source: sourceCode,
+      signals: {
+        ship1,
+        ship2
+      }
+    }).toCircomExecWithSignalsAndErrorThat((e) => {
+      expect(e.message).toMatch(/Assert Failed/);
+      expect(e.message).toMatch(/ValidateBoard/);
+    });
+  });
+
+  it('fails when ship1 vertical is not a bit', async () => {
+    const ship1 = [
+      '5', // start.x
+      '5', // start.y
+      '3', // isVertical <-- not a bit
+      '2', // size
+    ];
+
+    const ship2 = [
+      '4', // start.x
+      '8', // start.y
+      '1', // isVertical
+      '4', // size
+    ];
+
+    await expect({
+      source: sourceCode,
+      signals: {
+        ship1,
+        ship2
+      }
+    }).toCircomExecWithSignalsAndErrorThat((e) => {
+      expect(e.message).toMatch(/Assert Failed/);
+      expect(e.message).toMatch(/ValidateBoard/);
+    });
+  });
+
+  it('fails when ship2 vertical is not a bit', async () => {
+    const ship1 = [
+      '5', // start.x
+      '5', // start.y
+      '0', // isVertical
+      '2', // size
+    ];
+
+    const ship2 = [
+      '4', // start.x
+      '8', // start.y
+      '123', // isVertical <-- not a bit
+      '4', // size
+    ];
+
+    await expect({
+      source: sourceCode,
+      signals: {
+        ship1,
+        ship2
+      }
+    }).toCircomExecWithSignalsAndErrorThat((e) => {
+      expect(e.message).toMatch(/Assert Failed/);
+      expect(e.message).toMatch(/ValidateBoard/);
+    });
+  });
 });
