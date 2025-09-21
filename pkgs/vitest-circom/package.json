@@ -1,12 +1,9 @@
 {
   "name": "@solose-ts/vitest-circom",
-  "version": "0.1.0",
+  "version": "0.1.1-beta1",
   "packageManager": "pnpm@10.15.0",
   "type": "module",
   "main": "dist/index.js",
-  "files": [
-    "dist"
-  ],
   "exports": {
     ".": {
       "import": {
