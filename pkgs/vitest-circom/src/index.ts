@@ -5,10 +5,13 @@ interface CircomMatchers<R = unknown> {
   toCircomExecOk: () => Promise<R>
   toCircomExecOkWithSignals: () => Promise<R>
   toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<R>
+  toCircomExecAndThat: (signalHandler: (signals: string[]) => void | Promise<void>) => Promise<R>
   toCircomCompileError: () => Promise<R>
   toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<R>
   toCircomExecWithError: () => Promise<R>
   toCircomExecWithErrorThat: (handler: (e: CircomRuntimeError) => void | Promise<void>) => Promise<R>
+  toCircomExecWithSignalsAndError: () => Promise<R>
+  toCircomExecWithSignalsAndErrorThat: (handler: (e: CircomRuntimeError) => void | Promise<void>) => Promise<R>
 }
 
 declare module 'vitest' {
