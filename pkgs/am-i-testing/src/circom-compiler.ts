@@ -8,6 +8,7 @@ import { exec as nodeExec } from "node:child_process";
 import { promisify } from 'node:util';
 import { CircomCompileError } from "./errors.js";
 import * as process from "node:process";
+import * as path from "node:path";
 
 const exec = promisify(nodeExec);
 
@@ -16,11 +17,12 @@ type ExecErr = {
   stderr: string;
 }
 
-type CircomCompilerOpts = {
+export type CircomCompilerOpts = {
   compilerPath?: string;
   outDir?: string;
   cwd?: string;
   ptauPath?: string;
+  libraryRoots?: string[];
 };
 
 export class CircomCompiler {
@@ -34,11 +36,15 @@ export class CircomCompiler {
     this.circomPath = opts.compilerPath ?? 'circom';
     this.outDir = opts.outDir ?? temporaryDirectory();
     this.cwd = opts.cwd ?? process.cwd();
-    this.ptauPath = Option.fromNullable(opts.ptauPath).map(ptauPath => join(this.cwd, ptauPath));
-    this.libraryRoots = [];
+    this.ptauPath = Option.fromNullable(opts.ptauPath).map(ptauPath =>
+      path.isAbsolute(ptauPath)
+        ? ptauPath
+        : path.join(this.cwd, ptauPath)
+    );
+    this.libraryRoots = opts.libraryRoots ?? [];
   }
 
-  libraryRoot(dir: string) {
+  addLibraryRoot(dir: string) {
     return this.libraryRoots.push(dir);
   }
 

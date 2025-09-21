@@ -1,3 +1,5 @@
+export { type CircuitSignals } from 'snarkjs';
+
 export type JsonLike = {
   [key: string]: JsonLikeKey
 };

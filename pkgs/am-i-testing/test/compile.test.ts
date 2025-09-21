@@ -14,7 +14,9 @@ type Fixture = {
 
 const it = baseIt.extend<Fixture>({
   compiler: async ({}, use) => {
-    const compiler = new CircomCompiler({ptauPath: join(import.meta.dirname, 'ptau', 'powersoftau_09.ptau')});
+    const compiler = new CircomCompiler({
+      ptauPath: join(import.meta.dirname, 'ptau', 'powersoftau_09.ptau')
+    });
     await use(compiler);
     await compiler.clean();
   }
@@ -36,7 +38,7 @@ describe('compile cmd', () => {
     component main = Test();
   `;
 
-  it('writes source code in disk', async ({compiler}) => {
+  it('writes source code in disk', async ({compiler}: Fixture) => {
     const source = dedent`
       pragma circom 2.2.2;
       template Test() {}
@@ -49,7 +51,7 @@ describe('compile cmd', () => {
     expect(read.toString().trim()).toEqual(source.trim());
   });
 
-  it('generates sym file', async ({compiler}) => {
+  it('generates sym file', async ({compiler}: Fixture) => {
     const source = dedent`
       pragma circom 2.2.2;
       template Test() {
@@ -71,7 +73,7 @@ describe('compile cmd', () => {
     expect(symContent.trim()).toEqual(expectedContent.trim())
   });
 
-  it('produces right r1cs file', async ({compiler}) => {
+  it('produces right r1cs file', async ({compiler}: Fixture) => {
     const source = dedent`
       pragma circom 2.2.2;
       template Test() {
@@ -88,7 +90,7 @@ describe('compile cmd', () => {
     await expect(r1cs.info(path)).resolves.not.toThrow();
   });
 
-  it('can store input in disk', async ({compiler}) => {
+  it('can store input in disk', async ({compiler}: Fixture) => {
     const source = dedent`
       pragma circom 2.2.2;
       template Test() {
@@ -108,7 +110,7 @@ describe('compile cmd', () => {
     expect(JSON.parse(file.toString())).toEqual({a: '11'})
   });
 
-  it('generates witness with proper input', async ({compiler}) => {
+  it('generates witness with proper input', async ({compiler}: Fixture) => {
     const source = dedent`
       pragma circom 2.2.2;
       template Test() {
@@ -129,7 +131,7 @@ describe('compile cmd', () => {
     expect(check).toBe(true);
   });
 
-  it('can generate proofs', async ({compiler}) => {
+  it('can generate proofs', async ({compiler}: Fixture) => {
     const circuit = await compiler.compileStr(someCircuitCode);
     const witness = await circuit.witness({a: '11'});
     const proof = await witness.proveGroth16();
@@ -137,7 +139,7 @@ describe('compile cmd', () => {
     expect(proof.proof.curve).toEqual('bn128');
   });
 
-  it('proofs can be verified', async ({compiler}) => {
+  it('proofs can be verified', async ({compiler}: Fixture) => {
     const circuit = await compiler.compileStr(someCircuitCode);
     const witness = await circuit.witness({a: '11'});
     const proof = await witness.proveGroth16();
@@ -146,9 +148,9 @@ describe('compile cmd', () => {
     expect(verification).toBe(true);
   });
 
-  it('can add library roots', async ({compiler}) => {
+  it('can add library roots', async ({compiler}: Fixture) => {
     const dir = join(import.meta.dirname, 'test-circuit-lib');
-    compiler.libraryRoot(dir);
+    compiler.addLibraryRoot(dir);
 
 
     const source = dedent`
@@ -170,9 +172,30 @@ describe('compile cmd', () => {
     expect(proof.publicSignals[0]).toEqual('32');
   });
 
-  it('can add library roots 2', async ({compiler}) => {
+  it('can receive library roots as config', async () => {
+    const dir = join(import.meta.dirname, 'test-circuit-lib');
+
+    const compiler = new CircomCompiler({
+      libraryRoots: [dir]
+    })
+
+    const source = dedent`
+      pragma circom 2.2.2;
+      include "add.circom";
+      template Test() {
+        input signal a;
+        input signal b;
+        output signal c;
+        c <== Add()(a, b);
+      }
+      component main = Test();
+    `;
+    await expect(compiler.compileStr(source)).resolves.not.toThrow();
+  });
+
+  it('can add library roots 2', async ({compiler}: Fixture) => {
     const dir = join(import.meta.dirname);
-    compiler.libraryRoot(dir);
+    compiler.addLibraryRoot(dir);
 
     const source = dedent`
       pragma circom 2.2.2;
@@ -193,11 +216,11 @@ describe('compile cmd', () => {
     expect(proof.publicSignals[0]).toEqual('32');
   });
 
-  it('can add multiple library roots', async ({compiler}) => {
+  it('can add multiple library roots', async ({compiler}: Fixture) => {
     const dir = join(import.meta.dirname, 'test-circuit-lib');
     const dir2 = join(import.meta.dirname, 'test-circuit-lib-2');
-    compiler.libraryRoot(dir);
-    compiler.libraryRoot(dir2);
+    compiler.addLibraryRoot(dir);
+    compiler.addLibraryRoot(dir2);
 
 
     const source = dedent`
@@ -222,7 +245,7 @@ describe('compile cmd', () => {
     expect(proof.publicSignals[0]).toEqual('31');
   });
 
-  it('can save verification keys', async ({compiler}) => {
+  it('can save verification keys', async ({compiler}: Fixture) => {
     const source = dedent`
       pragma circom 2.2.2;
       template Test() {
@@ -238,7 +261,7 @@ describe('compile cmd', () => {
     expect(restored).toEqual(vKey);
   });
 
-  it('generates right extensions for all paths', async ({compiler}) => {
+  it('generates right extensions for all paths', async ({compiler}: Fixture) => {
     const source = dedent`
       pragma circom 2.2.2;
       template Test() {
@@ -256,7 +279,7 @@ describe('compile cmd', () => {
   });
 
   describe('compile errors', () => {
-    it('raises appropiate error', async ({compiler}) => {
+    it('raises appropiate error', async ({compiler}: Fixture) => {
       const source = dedent`
         pragma circom 2.2.2;
         template Test() {
@@ -277,7 +300,7 @@ describe('compile cmd', () => {
   });
 
   describe('runtime error', () => {
-    it('raises appropiate error', async ({compiler}) => {
+    it('raises appropiate error', async ({compiler}: Fixture) => {
       const source = dedent`
         pragma circom 2.2.2;
         template Test() {
@@ -301,7 +324,7 @@ describe('compile cmd', () => {
   });
 
   describe('Circuit#fullProve', async () => {
-    it('', async ({ compiler }) => {
+    it('', async ({ compiler }: Fixture) => {
       const circuit = await compiler.compileStr(someCircuitCode);
       const proof = await circuit.fullProveGroth16({ a: '10' });
       expect(proof.publicSignals).toEqual(['11']);
