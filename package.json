@@ -1,11 +1,11 @@
 {
   "name": "solose-ts",
-  "version": "0.1.1-beta2",
+  "version": "0.1.1-beta3",
   "private": true,
   "workspaces": [
     "pkgs/*"
   ],
   "scripts": {
-    "test": "pnpm run -r test"
+    "test:ci": "pnpm run -r test"
   }
 }
