@@ -1,6 +1,6 @@
 {
   "name": "@solose-ts/como-circulo",
-  "version": "0.1.1-beta3",
+  "version": "0.1.1-beta4",
   "packageManager": "pnpm@10.15.0",
   "type": "module",
   "module": "./dist/index.js",
