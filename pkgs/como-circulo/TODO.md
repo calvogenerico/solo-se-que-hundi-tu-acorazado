@@ -1,7 +1,7 @@
-- [ ] support plonk
 - [x] find a way to add library roots to compiler
 - [x] clear compile errors easy to catch with details.
 - [x] clear runtime error easy to catch with details.
 - [x] compile from file
-- [ ] fullProve();
+- [x] fullProve();
+- [ ] support plonk
 - [ ] helper to download perpetual powers of tau.
