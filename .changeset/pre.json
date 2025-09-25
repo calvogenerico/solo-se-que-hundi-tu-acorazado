@@ -7,6 +7,7 @@
     "@solose-ts/vitest-circom": "0.1.1-beta4"
   },
   "changesets": [
-    "red-apes-type"
+    "red-apes-type",
+    "tough-rocks-see"
   ]
 }
