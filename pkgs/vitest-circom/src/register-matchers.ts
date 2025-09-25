@@ -1,6 +1,8 @@
 import { expect, inject } from "vitest";
 import { CircomCompileError, CircomCompiler, CircomRuntimeError, type CircuitSignals } from "@solose-ts/como-circulo";
 import { type ExpectationResult } from "@vitest/expect";
+import * as path from "node:path";
+import * as os from "node:os";
 
 type CodeAndSignals = {
   source: string,
@@ -39,11 +41,16 @@ type WrapOpts = {
   onSuccess?: SuccessHandler;
 }
 
-async function wrap(fn: () => Promise<void>, opts: WrapOpts): Promise<ExpectationResult> {
+const libOptions = inject('__vitestCircom_options');
+
+async function wrap(fn: (compiler: CircomCompiler) => Promise<void>, opts: WrapOpts): Promise<ExpectationResult> {
   const handlers = Object.assign({}, defaultHandlers, opts);
 
+  const circomCompilerOpts = libOptions.circomCompilerOpts;
+  const compiler = new CircomCompiler(circomCompilerOpts);
+
   try {
-    await fn();
+    await fn(compiler);
   } catch (e) {
     if (e instanceof CircomCompileError) {
       return handlers.onCompileError(e)
@@ -52,6 +59,11 @@ async function wrap(fn: () => Promise<void>, opts: WrapOpts): Promise<Expectatio
       return handlers.onRuntimeError(e)
     }
     throw e;
+  } finally {
+    const isTemp = circomCompilerOpts.outDir === undefined || path.relative(circomCompilerOpts.outDir, os.tmpdir());
+    if (libOptions.removeTempFiles && isTemp) {
+      compiler.clean();
+    }
   }
 
   return handlers.onSuccess();
@@ -65,12 +77,7 @@ const failOnCompileError: CompileErrorHandler = (e) => ({
 const failOnRuntimeError: RuntimeErrorHandler = (e): ExpectationResult => ({
   pass: false,
   message: () => `RuntimeError:\n\n${e.message}`
-})
-
-function compiler(): CircomCompiler {
-  const opts = inject('circomCompilerOpts');
-  return new CircomCompiler(opts);
-}
+});
 
 const returnSuccess = (): ExpectationResult => {
   return {
@@ -101,8 +108,8 @@ async function compileWithError(sourceCode: string, handler: (e: CircomCompileEr
     }
   }
 
-  return wrap(async () => {
-    await compiler().compileStr(sourceCode);
+  return wrap(async (compiler) => {
+    await compiler.compileStr(sourceCode);
   }, {
     onCompileError,
     onSuccess: failOnSuccess
@@ -129,8 +136,8 @@ async function execWithError(sourceCode: unknown, signals: CircuitSignals, handl
     }
   }
 
-  return wrap(async () => {
-    const circuit = await compiler().compileStr(sourceCode);
+  return wrap(async (compiler) => {
+    const circuit = await compiler.compileStr(sourceCode);
     await circuit.witness(signals);
   }, {
     onCompileError: failOnCompileError,
@@ -145,16 +152,16 @@ expect.extend({
       throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
     }
 
-    return wrap(async () => {
-      const circuit = await compiler().compileStr(sourceCode);
+    return wrap(async (compiler) => {
+      const circuit = await compiler.compileStr(sourceCode);
       await circuit.witness({});
     }, {});
   },
   toCircomExecOkWithSignals: async (codeAndSignals) => {
     assertCodeAndSignals(codeAndSignals, 'received');
 
-    return wrap(async () => {
-      const circuit = await compiler().compileStr(codeAndSignals.source);
+    return wrap(async (compiler) => {
+      const circuit = await compiler.compileStr(codeAndSignals.source);
       await circuit.witness(codeAndSignals.signals);
     }, {});
   },
@@ -163,8 +170,8 @@ expect.extend({
       throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
     }
 
-    return wrap(async () => {
-      const circuit = await compiler().compileStr(sourceCode);
+    return wrap(async (compiler) => {
+      const circuit = await compiler.compileStr(sourceCode);
       const proof = await circuit.fullProveGroth16({});
       expect(proof.publicSignals).toEqual(expectedSignals);
     }, {})
@@ -174,8 +181,8 @@ expect.extend({
       throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
     }
 
-    return wrap(async () => {
-      const circuit = await compiler().compileStr(sourceCode);
+    return wrap(async (compiler) => {
+      const circuit = await compiler.compileStr(sourceCode);
       const proof = await circuit.fullProveGroth16({});
       await signalHandler(proof.publicSignals);
     }, {})
@@ -200,7 +207,8 @@ expect.extend({
   },
   toCircomExecWithSignalsAndError: async (input: unknown) => {
     assertCodeAndSignals(input, 'received');
-    return execWithError(input.source, input.signals, async () => {});
+    return execWithError(input.source, input.signals, async () => {
+    });
   },
   toCircomExecWithSignalsAndErrorThat: async (input: unknown, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
     assertCodeAndSignals(input, 'received');

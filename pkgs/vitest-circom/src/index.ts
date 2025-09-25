@@ -18,7 +18,7 @@ interface CircomMatchers<R = unknown> {
 
 declare module 'vitest' {
   export interface ProvidedContext {
-    circomCompilerOpts: CircomCompilerOpts;
+    __vitestCircom_options: UseCircomOptions;
   }
 
   interface Assertion<T = any> extends CircomMatchers<T> {
@@ -28,7 +28,19 @@ declare module 'vitest' {
   }
 }
 
-export function useCircomCompiler(circomCompilerOpts: CircomCompilerOpts = {}): Vite.Plugin {
+export type UseCircomOptions = {
+  circomCompilerOpts: CircomCompilerOpts,
+  removeTempFiles: boolean;
+}
+
+const defaultOpts: UseCircomOptions = {
+  circomCompilerOpts: {},
+  removeTempFiles: false
+}
+
+export function useCircomCompiler(givenOptions: Partial<UseCircomOptions> = defaultOpts): Vite.Plugin {
+  const opts = Object.assign({}, defaultOpts, givenOptions);
+
   return {
     name: 'vitest:my-super-plugin',
     config: () => ({
@@ -37,7 +49,7 @@ export function useCircomCompiler(circomCompilerOpts: CircomCompilerOpts = {}): 
       },
     }),
     configureVitest(context: VitestPluginContext) {
-      context.vitest.provide('circomCompilerOpts', circomCompilerOpts);
+      context.vitest.provide('__vitestCircom_options', opts);
     }
   };
 }
