@@ -1,5 +1,7 @@
 import type { Vite, VitestPluginContext } from "vitest/node";
 import { type CircomCompileError, type CircomCompilerOpts, type CircomRuntimeError } from "@solose-ts/como-circulo";
+import { join } from "node:path";
+import { sourceDir } from "./src-dir.cjs";
 
 interface CircomMatchers<R = unknown> {
   toCircomExecOk: () => Promise<R>
@@ -31,7 +33,7 @@ export function useCircomCompiler(circomCompilerOpts: CircomCompilerOpts = {}): 
     name: 'vitest:my-super-plugin',
     config: () => ({
       test: {
-        setupFiles: [import.meta.resolve('./register-matchers.js')]
+        setupFiles: [join(sourceDir, 'register-matchers.js')]
       },
     }),
     configureVitest(context: VitestPluginContext) {

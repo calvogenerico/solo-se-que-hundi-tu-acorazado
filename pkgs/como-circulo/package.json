@@ -3,18 +3,25 @@
   "version": "0.1.1-beta4",
   "packageManager": "pnpm@10.15.0",
   "type": "module",
-  "module": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
   "exports": {
+    "./package.json": "./package.json",
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/index.d.ts",
+        "default": "./dist/commonjs/index.js"
+      }
     }
   },
   "scripts": {
+    "prepare": "tshy",
     "clean": "rimraf dist",
-    "prebuild": "pnpm run clean",
-    "build": "tsc -p tsconfig.build.json",
-    "build:watch": "tsc -p tsconfig.build.json --watch",
     "test": "pnpm vitest run"
   },
   "dependencies": {
@@ -34,7 +41,17 @@
     "esbuild": "^0.25.10",
     "esbuild-node-externals": "^1.18.0",
     "rimraf": "^6.0.1",
+    "tshy": "^3.0.2",
     "typescript": "^5",
     "vitest": "^3.2.0"
-  }
+  },
+  "tshy": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./src/index.ts"
+    }
+  },
+  "main": "./dist/commonjs/index.js",
+  "types": "./dist/commonjs/index.d.ts",
+  "module": "./dist/esm/index.js"
 }
