@@ -9,20 +9,68 @@ type CodeAndSignals = {
   signals: CircuitSignals,
 }
 
-function assertCodeAndSignals(input: unknown, name: string): asserts input is CodeAndSignals {
+function assertCircuitSignalValue(obj: unknown, keyName: string, path: string[]): asserts obj is keyof CircuitSignals {
+  const newPath = [...path, keyName];
+  if (typeof obj === 'string') {
+    if (!/^0-9+$/.test(obj)) {
+      return
+    } else {
+      throw new TypeError(`Invalid circom signals. Not numeric value at :${newPath}`);
+    }
+  }
+
+  if (typeof obj === 'number') {
+    throw new TypeError(`Invalid circom signals. Found number found at :${newPath}. Please use bigints or numeric strings`);
+  }
+
+  if (typeof obj === 'object') {
+    assertCircuitSignals(obj, newPath);
+    return
+  }
+
+  if (typeof obj === 'bigint') {
+    return
+  }
+
+  throw TypeError(`Invalid circom signals. Found invalid object at ${newPath}`);
+}
+
+function assertCircuitSignals(obj: unknown, path: string[]): asserts obj is CircuitSignals {
+  if (obj === null) {
+    throw TypeError(`Invalid signales. Found null at ${path}`)
+  }
+  if (typeof obj !== 'object') {
+    throw TypeError(`Invalid signals at ${path}`)
+  }
+
+  [...Object.entries(obj)].map(([key, value]) => assertCircuitSignalValue(value, key, path)).every(v => v);
+}
+
+class CircomInput {
+  public sourceCode: string;
+  public signals: CircuitSignals;
+
+  constructor(sourceCode: string, signals: CircuitSignals | undefined) {
+    this.sourceCode = sourceCode;
+    this.signals = signals || {}; // Default value for signals
+  }
+}
+
+function parseCodeAndSignals(input: unknown, name: string): CircomInput {
+  if (typeof input === 'string') {
+    return new CircomInput(input, {});
+  }
+
   if (typeof input !== 'object' || input === null || !input) {
     throw new TypeError(`expected ${name} to be CodeAndSignals but it's not`);
   }
 
   const casted = input as Partial<CodeAndSignals>;
 
-  if (typeof casted.source !== 'string') {
-    throw new TypeError(`expected ${name} to be CodeAndSignals but it's not`);
-  }
+  assertString(casted.source);
+  assertCircuitSignals(casted.signals || {}, []);
 
-  if (typeof casted.signals !== 'object') {
-    throw new TypeError(`expected ${name} to be CodeAndSignals but it's not`);
-  }
+  return new CircomInput(casted.source, casted.signals);
 }
 
 function assertString(input: unknown): asserts input is string {
@@ -147,72 +195,48 @@ async function execWithError(sourceCode: unknown, signals: CircuitSignals, handl
 }
 
 expect.extend({
-  toCircomExecOk: async (sourceCode) => {
-    if (typeof sourceCode !== 'string') {
-      throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
-    }
+  toCircomExecOk: async (received) => {
+    const input = parseCodeAndSignals(received, 'received');
 
     return wrap(async (compiler) => {
-      const circuit = await compiler.compileStr(sourceCode);
-      await circuit.witness({});
+      const circuit = await compiler.compileStr(input.sourceCode);
+      await circuit.witness(input.signals);
     }, {});
   },
-  toCircomExecOkWithSignals: async (codeAndSignals) => {
-    assertCodeAndSignals(codeAndSignals, 'received');
+  toCircomExecAndOutputs: async (received, expectedSignals: string[]) => {
+    const input = parseCodeAndSignals(received, 'received');
 
     return wrap(async (compiler) => {
-      const circuit = await compiler.compileStr(codeAndSignals.source);
-      await circuit.witness(codeAndSignals.signals);
-    }, {});
-  },
-  toCircomExecAndOutputs: async (sourceCode, expectedSignals: string[]) => {
-    if (typeof sourceCode !== 'string') {
-      throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
-    }
-
-    return wrap(async (compiler) => {
-      const circuit = await compiler.compileStr(sourceCode);
-      const proof = await circuit.fullProveGroth16({});
+      const circuit = await compiler.compileStr(input.sourceCode);
+      const proof = await circuit.fullProveGroth16(input.signals);
       expect(proof.publicSignals).toEqual(expectedSignals);
     }, {})
   },
-  toCircomExecAndOutputThat: async (sourceCode, signalHandler: (signals: string[]) => void | Promise<void>) => {
-    if (typeof sourceCode !== 'string') {
-      throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`)
-    }
+  toCircomExecAndOutputThat: async (received, signalHandler: (signals: string[]) => void | Promise<void>) => {
+    const input = parseCodeAndSignals(received, 'received');
 
     return wrap(async (compiler) => {
-      const circuit = await compiler.compileStr(sourceCode);
-      const proof = await circuit.fullProveGroth16({});
+      const circuit = await compiler.compileStr(input.sourceCode);
+      const proof = await circuit.fullProveGroth16(input.signals);
       await signalHandler(proof.publicSignals);
     }, {})
   },
-  toCircomCompileError: async (sourceCode: unknown) => {
-    assertString(sourceCode);
-    return compileWithError(sourceCode, async () => {
+  toCircomCompileError: async (received: unknown) => {
+    const input = parseCodeAndSignals(received, 'received');
+    return compileWithError(input.sourceCode, async () => {
     });
   },
-  toCircomCompileErrorThat: async (sourceCode: any, handler: (e: CircomCompileError) => void | Promise<void>) => {
-    assertString(sourceCode);
-    return compileWithError(sourceCode, handler);
+  toCircomCompileErrorThat: async (received: unknown, handler: (e: CircomCompileError) => void | Promise<void>) => {
+    const input = parseCodeAndSignals(received, 'received');
+    return compileWithError(input.sourceCode, handler);
   },
-  toCircomExecWithError: async (sourceCode: any) => {
-    assertString(sourceCode);
-    return execWithError(sourceCode, {}, async () => {
+  toCircomExecWithError: async (received: any) => {
+    const input = parseCodeAndSignals(received, 'received');
+    return execWithError(input, {}, async () => {
     });
   },
-  toCircomExecWithErrorThat: async (sourceCode: any, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
-    assertString(sourceCode);
-    return execWithError(sourceCode, {}, handler);
-  },
-  toCircomExecWithSignalsAndError: async (input: unknown) => {
-    assertCodeAndSignals(input, 'received');
-    return execWithError(input.source, input.signals, async () => {
-    });
-  },
-  toCircomExecWithSignalsAndErrorThat: async (input: unknown, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
-    assertCodeAndSignals(input, 'received');
-    return execWithError(input.source, input.signals, handler);
+  toCircomExecWithErrorThat: async (received: any, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
+    const input = parseCodeAndSignals(received, 'received');
+    return execWithError(input.sourceCode, {}, handler);
   }
 });
-

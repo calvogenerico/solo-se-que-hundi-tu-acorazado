@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "@solose-ts/como-circulo": "workspace:*",
-    "@vitest/expect": "^3.2.4"
+    "@vitest/expect": "^3.2.4",
+    "zod": "^4.1.8"
   },
   "peerDependencies": {
     "vitest": ">3.2.0"
