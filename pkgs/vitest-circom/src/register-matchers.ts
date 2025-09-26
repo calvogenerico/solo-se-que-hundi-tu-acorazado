@@ -56,9 +56,9 @@ class CircomInput {
   }
 }
 
-function parseCodeAndSignals(input: unknown, name: string): CircomInput {
+function parseCodeAndSignals(input: unknown, name: string): CodeAndSignals {
   if (typeof input === 'string') {
-    return new CircomInput(input, {});
+    return {signals: {}, source: input};
   }
 
   if (typeof input !== 'object' || input === null || !input) {
@@ -66,11 +66,12 @@ function parseCodeAndSignals(input: unknown, name: string): CircomInput {
   }
 
   const casted = input as Partial<CodeAndSignals>;
+  casted.signals = casted.signals ?? {};
 
   assertString(casted.source);
-  assertCircuitSignals(casted.signals || {}, []);
+  assertCircuitSignals(casted.signals, []);
 
-  return new CircomInput(casted.source, casted.signals);
+  return {signals: casted.signals, source: casted.source};
 }
 
 function assertString(input: unknown): asserts input is string {
@@ -199,7 +200,7 @@ expect.extend({
     const input = parseCodeAndSignals(received, 'received');
 
     return wrap(async (compiler) => {
-      const circuit = await compiler.compileStr(input.sourceCode);
+      const circuit = await compiler.compileStr(input.source);
       await circuit.witness(input.signals);
     }, {});
   },
@@ -207,7 +208,7 @@ expect.extend({
     const input = parseCodeAndSignals(received, 'received');
 
     return wrap(async (compiler) => {
-      const circuit = await compiler.compileStr(input.sourceCode);
+      const circuit = await compiler.compileStr(input.source);
       const proof = await circuit.fullProveGroth16(input.signals);
       expect(proof.publicSignals).toEqual(expectedSignals);
     }, {})
@@ -216,19 +217,19 @@ expect.extend({
     const input = parseCodeAndSignals(received, 'received');
 
     return wrap(async (compiler) => {
-      const circuit = await compiler.compileStr(input.sourceCode);
+      const circuit = await compiler.compileStr(input.source);
       const proof = await circuit.fullProveGroth16(input.signals);
       await signalHandler(proof.publicSignals);
     }, {})
   },
   toCircomCompileError: async (received: unknown) => {
     const input = parseCodeAndSignals(received, 'received');
-    return compileWithError(input.sourceCode, async () => {
+    return compileWithError(input.source, async () => {
     });
   },
   toCircomCompileErrorThat: async (received: unknown, handler: (e: CircomCompileError) => void | Promise<void>) => {
     const input = parseCodeAndSignals(received, 'received');
-    return compileWithError(input.sourceCode, handler);
+    return compileWithError(input.source, handler);
   },
   toCircomExecWithError: async (received: any) => {
     const input = parseCodeAndSignals(received, 'received');
@@ -237,6 +238,6 @@ expect.extend({
   },
   toCircomExecWithErrorThat: async (received: any, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
     const input = parseCodeAndSignals(received, 'received');
-    return execWithError(input.sourceCode, {}, handler);
+    return execWithError(input.source, {}, handler);
   }
 });

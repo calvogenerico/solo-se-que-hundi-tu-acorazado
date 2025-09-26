@@ -125,6 +125,9 @@ importers:
       '@types/node':
         specifier: ^24.3.3
         version: 24.3.3
+      dedent:
+        specifier: ^1.7.0
+        version: 1.7.0
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
