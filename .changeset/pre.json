@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@solose-ts/acorazado": "0.1.1",
+    "@solose-ts/como-circulo": "0.1.1",
+    "@solose-ts/vitest-circom": "0.1.1"
+  },
+  "changesets": []
+}
