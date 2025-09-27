@@ -26,25 +26,24 @@ import { useCircomCompiler } from "@solose-ts/vitest-circom";
 import path from "node:path";
 
 export default defineConfig({
-  test: {
-    exclude: [],
-    include: ['tests/**/*.test.ts']
-  },
-  plugins: [useCircomCompiler({
-    circomCompilerOpts: {
-      cwd: import.meta.dirname, // Use package root as root for `cwd` for circom compiler
-      ptauPath: path.join('path', 'to', 'valid', 'powersoftaufile.ptau'),
-      libraryRoots: [
-        path.join('your', 'circuits', 'folder'),
-        path.join('node_modules'), // To use circomlib, etc.
-      ]
-    }
-  })]
+    test: {
+        exclude: [],
+        include: ['tests/**/*.test.ts']
+    },
+    plugins: [useCircomCompiler({
+        circomCompilerOpts: {
+            cwd: import.meta.dirname, // Use package root as root for `cwd` for circom compiler
+            ptauPath: path.join('path', 'to', 'valid', 'powersoftaufile.ptau'),
+            libraryRoots: [
+                path.join('your', 'circuits', 'folder'),
+                path.join('node_modules'), // To use circomlib, etc.
+            ]
+        }
+    })]
 });
 ```
 
 Once this plugin is added the following matchers will be available:
-
 
 ```ts
 interface Assertion<T = any> {
@@ -58,4 +57,5 @@ interface Assertion<T = any> {
 }
 ```
 
-You can find example of how to use them in the [test suite](./tests/matchers.test.ts)
+You can find example of how to use them in the [test suite](./tests/matchers.test.ts) or
+the [acorazado project](../../pkgs/acorazado/tests)
