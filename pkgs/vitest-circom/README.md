@@ -21,26 +21,28 @@ bun add -D @solose-ts/vitest-circom
 ## config
 
 ```ts
-import { defineConfig } from "vitest/config";
-import { useCircomCompiler } from "@solose-ts/vitest-circom";
-import path from "node:path";
+import { defineConfig } from 'vitest/config';
+import { useCircomCompiler } from '@solose-ts/vitest-circom';
+import path from 'node:path';
 
 export default defineConfig({
-    test: {
-        exclude: [],
-        include: ['tests/**/*.test.ts']
-    },
-    plugins: [useCircomCompiler({
-        removeTempFiles: false, // false by default
-        circomCompilerOpts: {
-            cwd: import.meta.dirname, // Use package root as root for `cwd` for circom compiler
-            ptauPath: path.join('path', 'to', 'valid', 'powersoftaufile.ptau'),
-            libraryRoots: [
-                path.join('your', 'circuits', 'folder'),
-                path.join('node_modules'), // To use circomlib, etc.
-            ]
-        }
-    })]
+  test: {
+    exclude: [],
+    include: ['tests/**/*.test.ts']
+  },
+  plugins: [
+    useCircomCompiler({
+      removeTempFiles: false, // false by default
+      circomCompilerOpts: {
+        cwd: import.meta.dirname, // Use package root as root for `cwd` for circom compiler
+        ptauPath: path.join('path', 'to', 'valid', 'powersoftaufile.ptau'),
+        libraryRoots: [
+          path.join('your', 'circuits', 'folder'),
+          path.join('node_modules') // To use circomlib, etc.
+        ]
+      }
+    })
+  ]
 });
 ```
 
@@ -66,13 +68,13 @@ Once this plugin is added the following matchers will be available:
 
 ```ts
 interface Assertion<T = any> {
-    toCircomExecOk: () => Promise<T>;
-    toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<T>;
-    toCircomExecAndOutputThat: (signalHandler: (signals: string[]) => void | Promise<void>) => Promise<T>;
-    toCircomCompileError: () => Promise<T>;
-    toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<T>;
-    toCircomExecWithError: () => Promise<T>;
-    toCircomExecWithErrorThat: (handler: (e: CircomRuntimeError) => void | Promise<void>) => Promise<T>;
+  toCircomExecOk: () => Promise<T>;
+  toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<T>;
+  toCircomExecAndOutputThat: (signalHandler: (signals: string[]) => void | Promise<void>) => Promise<T>;
+  toCircomCompileError: () => Promise<T>;
+  toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<T>;
+  toCircomExecWithError: () => Promise<T>;
+  toCircomExecWithErrorThat: (handler: (e: CircomRuntimeError) => void | Promise<void>) => Promise<T>;
 }
 ```
 
@@ -82,7 +84,7 @@ Every matcher can assert over 2 kind of object:
 
 ```ts
 it('can assert that a snippet execs ok', () => {
-    expect(dedent`
+  expect(dedent`
         pragma circom 2.2.2;
         template Test() {
             signal a <== 10;
@@ -96,19 +98,19 @@ it('can assert that a snippet execs ok', () => {
 - An object like this:
 
 ```ts
-import { CircuitSignals } from "snarkjs";
+import { CircuitSignals } from 'snarkjs';
 
 type SourceAndSignals = {
-    source: string,
-    signals?: CircuitSignals
-}
+  source: string;
+  signals?: CircuitSignals;
+};
 ```
 
 This is how a basic test looks like:
 
 ```ts
 it('can assert that a snippet execs ok', () => {
-    expect(dedent`
+  expect(dedent`
         pragma circom 2.2.2;
         template Test() {
             signal a <== 10;
@@ -130,8 +132,8 @@ In case inputs signals are needed it can be executed like this:
 
 ```ts
 it('can assert that a snippet execs ok', () => {
-    expect({
-        source: dedent`
+  expect({
+    source: dedent`
             pragma circom 2.2.2;
             template Test() {
                 input signal in;
@@ -139,8 +141,8 @@ it('can assert that a snippet execs ok', () => {
             }
             component main = Test();
         `,
-        signals: { a: 10 } // Optional property. If not present `{}` is use by default.
-    }).toCircomExecOk();
+    signals: { a: 10 } // Optional property. If not present `{}` is use by default.
+  }).toCircomExecOk();
 });
 ```
 
@@ -151,27 +153,27 @@ There are other matchers that allow to check and assert over possible errors
 
 ```ts
 it('can assert that a snippet compiles ok but produces error during execution', () => {
-    expect({
-        source: dedent`
+  expect({
+    source: dedent`
             pragma circom 2.2.2;
             template Test() {
                 4 === 40;
             }
             component main = Test();
             `
-    }).toCircomExecWithError();
+  }).toCircomExecWithError();
 });
 
 it('can assert that a snippet compiles with error', () => {
-    expect({
-        source: dedent`
+  expect({
+    source: dedent`
             pragma circom 2.2.2;
             template Test() {
                 4 === 40;
             }
             component main = Test();
             `
-    }).toCircomExecWithError();
+  }).toCircomExecWithError();
 });
 ```
 

@@ -22,7 +22,11 @@
   "scripts": {
     "prepare": "tshy",
     "clean": "rimraf dist",
-    "test": "pnpm vitest run"
+    "test": "pnpm vitest run",
+    "lint": "pnpm --fix eslint .",
+    "lint:check": "pnpm eslint .",
+    "fmt": "prettier --cache --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts,vue,md,json}\"",
+    "fmt:check": "prettier --cache --check \"**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts,vue,md,json}\""
   },
   "dependencies": {
     "canonical-json": "^0.2.0",
@@ -36,13 +40,17 @@
     "vitest": ">3.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.36.0",
     "@types/node": "^24.3.3",
     "@types/snarkjs": "^0.7.9",
     "esbuild": "^0.25.10",
     "esbuild-node-externals": "^1.18.0",
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "tshy": "^3.0.2",
     "typescript": "^5",
+    "typescript-eslint": "^8.44.1",
     "vitest": "^3.2.0"
   },
   "tshy": {

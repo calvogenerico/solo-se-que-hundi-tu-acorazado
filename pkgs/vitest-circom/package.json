@@ -21,8 +21,10 @@
     "clean": "rimraf dist",
     "prepare": "tshy",
     "build:watch": "tsc -p tsconfig.build.json --watch",
-    "lint": "pnpm eslint .",
-    "lint:fix": "pnpm --fix eslint ."
+    "lint": "pnpm --fix eslint .",
+    "lint:check": "pnpm eslint .",
+    "fmt": "prettier --cache --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts,vue,md,json}\"",
+    "fmt:check": "prettier --cache --check \"**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts,vue,md,json}\""
   },
   "dependencies": {
     "@solose-ts/como-circulo": "workspace:*",

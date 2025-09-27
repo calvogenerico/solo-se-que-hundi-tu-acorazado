@@ -1,11 +1,11 @@
-import type { Groth16Proof, PublicSignals } from "snarkjs";
+import type { Groth16Proof, PublicSignals } from 'snarkjs';
 
 type ProvingSystem = 'groth16' | 'plonk';
 
 export class Proof {
   publicSignals: PublicSignals;
   proof: Groth16Proof;
-  provingSystem: ProvingSystem
+  provingSystem: ProvingSystem;
 
   constructor(publicSignals: PublicSignals, proof: Groth16Proof, provingSystem: ProvingSystem) {
     this.publicSignals = publicSignals;

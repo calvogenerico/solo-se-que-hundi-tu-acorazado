@@ -1,6 +1,6 @@
-import type { Circuit } from "./circuit.js";
+import type { Circuit } from './circuit.js';
 import { groth16 } from 'snarkjs';
-import { Proof } from "./proof.js";
+import { Proof } from './proof.js';
 
 export class Witness {
   filePath: string;
@@ -12,10 +12,7 @@ export class Witness {
   }
 
   async proveGroth16(): Promise<Proof> {
-    const { proof, publicSignals } = await groth16.prove(
-      await this.circuit.generateGroth16Zkey(),
-      this.filePath
-    );
+    const { proof, publicSignals } = await groth16.prove(await this.circuit.generateGroth16Zkey(), this.filePath);
 
     return new Proof(publicSignals, proof, 'groth16');
   }

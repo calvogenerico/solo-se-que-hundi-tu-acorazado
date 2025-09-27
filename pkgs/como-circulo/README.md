@@ -16,7 +16,7 @@ yarn add @solose-ts/como-circulo
 # npm
 npm add @solose-ts/como-circulo
 
-# bun 
+# bun
 bun add @solose-ts/como-circulo
 ```
 
@@ -32,8 +32,8 @@ The main abstraction provided is the `CircomCompiler` which is basically a wrapp
 The compiler can be used to compile inline snippets or circom files:
 
 ```ts
-import { CircomCompiler } from '@solose-ts/como-circulo'
-import * as path from 'node:path'
+import { CircomCompiler } from '@solose-ts/como-circulo';
+import * as path from 'node:path';
 
 const compiler = new CircomCompiler();
 
@@ -91,19 +91,17 @@ const isValid = await circuit.groth16Verify(proof);
 console.log(isValid); // `true` or `false`
 ```
 
-
-
 ## Options
 
 The object `CircomCompiler` can be initialized with the following parameters:
 
 ```ts
 export type CircomCompilerOpts = {
-    compilerPath?: string;
-    outDir?: string;
-    cwd?: string;
-    ptauPath?: string;
-    libraryRoots?: string[];
+  compilerPath?: string;
+  outDir?: string;
+  cwd?: string;
+  ptauPath?: string;
+  libraryRoots?: string[];
 };
 ```
 

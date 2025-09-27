@@ -1,21 +1,21 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { join, parse } from "node:path";
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, parse } from 'node:path';
 import { type CircuitSignals, groth16, wtns, zKey } from 'snarkjs';
-import { Witness } from "./witness.js";
-import type { Option } from "nochoices";
-import { random } from "nanoid";
+import { Witness } from './witness.js';
+import type { Option } from 'nochoices';
+import { random } from 'nanoid';
 import { existsSync } from 'node:fs';
-import type { Proof } from "./proof.ts";
-import type { Brand, JsonLike } from "./types.ts";
+import type { Proof } from './proof.ts';
+import type { Brand, JsonLike } from './types.ts';
 import { createHash } from 'node:crypto';
-import { stringify } from 'canonical-json'
-import { CircomRuntimeError } from "./errors.js";
+import { stringify } from 'canonical-json';
+import { CircomRuntimeError } from './errors.js';
 
 type VerificationKey = Brand<JsonLike, 'vKey'>;
 
 type TypedWitnessError = {
   message?: string;
-}
+};
 
 function quickHash(obj: JsonLike, size: number): string {
   const text = stringify(obj);
@@ -35,9 +35,8 @@ export class Circuit {
     this.ptauPath = ptauPath;
   }
 
-
   async symFile(): Promise<string> {
-    return readFile(join(this.artifactDir, `${this.name}.sym`)).then(buf => buf.toString());
+    return readFile(join(this.artifactDir, `${this.name}.sym`)).then((buf) => buf.toString());
   }
 
   r1csPath(): string {
@@ -51,22 +50,17 @@ export class Circuit {
 
   async witness(inputsObj: CircuitSignals): Promise<Witness> {
     await this.setInput(inputsObj);
-    const text = await readFile(this.inputPath(inputsObj)).then(buf => buf.toString());
+    const text = await readFile(this.inputPath(inputsObj)).then((buf) => buf.toString());
     const outPath = this.witnessPath(inputsObj);
 
     const inputSignals = JSON.parse(text);
     const wasmPath = join(this.artifactDir, `${this.name}_js`, `${this.name}.wasm`);
     try {
-      await wtns.calculate(
-        inputSignals as CircuitSignals,
-        wasmPath,
-        outPath
-      );
+      await wtns.calculate(inputSignals as CircuitSignals, wasmPath, outPath);
     } catch (e) {
       const typedError = e as TypedWitnessError;
       throw new CircomRuntimeError(inputSignals, wasmPath, typedError.message);
     }
-
 
     return new Witness(outPath, this);
   }
@@ -76,11 +70,7 @@ export class Circuit {
       return this.zkeyFinalPath();
     }
 
-    await zKey.newZKey(
-      this.r1csPath(),
-      this.ptauPath.expect(new Error("Missing ptau path")),
-      this.zkeyInitialPath(),
-    );
+    await zKey.newZKey(this.r1csPath(), this.ptauPath.expect(new Error('Missing ptau path')), this.zkeyInitialPath());
 
     await zKey.contribute(
       this.zkeyInitialPath(),
@@ -107,7 +97,7 @@ export class Circuit {
 
   async groth16Verify(proof: Proof): Promise<boolean> {
     const vkey = await this.vKey();
-    return groth16.verify(vkey, proof.publicSignals, proof.proof)
+    return groth16.verify(vkey, proof.publicSignals, proof.proof);
   }
 
   async vKey(): Promise<VerificationKey> {
@@ -119,7 +109,7 @@ export class Circuit {
   }
 
   inputPath(inputsObj: CircuitSignals): string {
-    const prefix = this.inputsDigest(inputsObj) ;
+    const prefix = this.inputsDigest(inputsObj);
     return join(this.artifactDir, `witness-${prefix}.inputs.json`);
   }
 
@@ -128,11 +118,11 @@ export class Circuit {
   }
 
   zkeyPath(index: number): string {
-    return join(this.artifactDir, `${this.name}.${index.toString().padStart(3, '0')}.zkey`)
+    return join(this.artifactDir, `${this.name}.${index.toString().padStart(3, '0')}.zkey`);
   }
 
   zkeyFinalPath(): string {
-    return join(this.artifactDir, `${this.name}.final.zkey`)
+    return join(this.artifactDir, `${this.name}.final.zkey`);
   }
 
   witnessPath(inputsObj: CircuitSignals): string {
@@ -149,12 +139,16 @@ export class Circuit {
   }
 
   private signalsToJson(inputsObj: CircuitSignals): JsonLike {
-    const string = JSON.stringify(inputsObj, (key, value) => {
-      if (typeof value === 'bigint') {
-        return value.toString()
-      }
-      return value;
-    }, 2);
+    const string = JSON.stringify(
+      inputsObj,
+      (key, value) => {
+        if (typeof value === 'bigint') {
+          return value.toString();
+        }
+        return value;
+      },
+      2
+    );
     return JSON.parse(string);
   }
 }
