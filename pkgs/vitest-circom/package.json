@@ -20,7 +20,9 @@
   "scripts": {
     "clean": "rimraf dist",
     "prepare": "tshy",
-    "build:watch": "tsc -p tsconfig.build.json --watch"
+    "build:watch": "tsc -p tsconfig.build.json --watch",
+    "lint": "pnpm eslint .",
+    "lint:fix": "pnpm --fix eslint ."
   },
   "dependencies": {
     "@solose-ts/como-circulo": "workspace:*",
@@ -31,11 +33,14 @@
     "vitest": ">3.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.36.0",
     "@types/node": "^24.3.3",
     "dedent": "^1.7.0",
+    "eslint": "^9.36.0",
     "rimraf": "^6.0.1",
     "tshy": "^3.0.2",
-    "typescript": "^5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1",
     "vitest": "^3.2.4"
   },
   "tshy": {

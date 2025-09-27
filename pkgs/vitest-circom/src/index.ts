@@ -3,32 +3,21 @@ import { type CircomCompileError, type CircomCompilerOpts, type CircomRuntimeErr
 import { join } from "node:path";
 import { sourceDir } from "./src-dir.cjs";
 
-interface StringCircomMatchers {
-  toCircomExecOk: () => Promise<string>
-}
-
-interface CircomMatchers<R = unknown> {
-  toCircomExecOk: () => Promise<R>
-  toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<R>
-  toCircomExecAndThat: (signalHandler: (signals: string[]) => void | Promise<void>) => Promise<R>
-  toCircomCompileError: () => Promise<R>
-  toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<R>
-  toCircomExecWithError: () => Promise<R>
-  toCircomExecWithErrorThat: (handler: (e: CircomRuntimeError) => void | Promise<void>) => Promise<R>
-}
-
 declare module 'vitest' {
   export interface ProvidedContext {
     __vitestCircom_options: UseCircomOptions;
   }
 
-  interface Assertion<T = any> extends CircomMatchers<T> {
-  }
-
-  interface Assertion<T extends string> extends StringCircomMatchers {
-  }
-
-  interface AsymmetricMatchersContaining extends CircomMatchers {
+  // We need to use `any` here to have exactly the same interface defined in vitest
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Assertion<T = any> {
+    toCircomExecOk: () => Promise<T>
+    toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<T>
+    toCircomExecAndThat: (signalHandler: (signals: string[]) => void | Promise<void>) => Promise<T>
+    toCircomCompileError: () => Promise<T>
+    toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<T>
+    toCircomExecWithError: () => Promise<T>
+    toCircomExecWithErrorThat: (handler: (e: CircomRuntimeError) => void | Promise<void>) => Promise<T>
   }
 }
 
@@ -40,7 +29,7 @@ export type UseCircomOptions = {
 const defaultOpts: UseCircomOptions = {
   circomCompilerOpts: {},
   removeTempFiles: false
-}
+};
 
 export function useCircomCompiler(givenOptions: Partial<UseCircomOptions> = defaultOpts): Vite.Plugin {
   const opts = Object.assign({}, defaultOpts, givenOptions);

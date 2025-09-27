@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import dedent from 'dedent';
 
 describe('circom matchers', () => {
-
   describe('#toCircomExecOk', () => {
     it('can assert that a snippet execs ok', () => {
       expect(`
@@ -91,4 +90,4 @@ describe('circom matchers', () => {
       }).toCircomExecOk();
     });
   });
-})
+});
