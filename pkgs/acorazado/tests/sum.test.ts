@@ -52,7 +52,7 @@ describe('Sum circuit', () => {
         expected2,
         expected3
       }
-    }).toCircomExecOkWithSignals();
+    }).toCircomExecOk();
   });
 
   it('produces right values for sums (2)', async () => {

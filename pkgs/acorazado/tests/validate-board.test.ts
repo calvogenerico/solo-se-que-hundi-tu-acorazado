@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import dedent from "dedent";
+import { describe, expect, it } from 'vitest';
+import dedent from 'dedent';
 
 describe('ValidateBoard', () => {
   it('fails to compile if board is smaller than ships horizontally', async () => {
@@ -65,7 +65,7 @@ describe('ValidateBoard', () => {
       component main = Test();
     `;
 
-    await expect(source).toCircomCompileErrorThat(e => {
+    await expect(source).toCircomCompileErrorThat((e) => {
       expect(e.message).toMatch(/assert\(hSize > BIG_SHIP_SIZE\(\)\)/);
     });
   });
@@ -133,8 +133,8 @@ describe('ValidateBoard', () => {
       component main = Test();
     `;
 
-    await expect(source).toCircomCompileErrorThat(e => {
-      expect(e.message).toContain('assert(vSize > BIG_SHIP_SIZE())')
+    await expect(source).toCircomCompileErrorThat((e) => {
+      expect(e.message).toContain('assert(vSize > BIG_SHIP_SIZE())');
     });
   });
 
@@ -315,14 +315,14 @@ describe('ValidateBoard', () => {
       '5', // start.x
       '5', // start.y
       '1', // isVertical
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '11', // start.x <-- out of bounds
       '1', // start.y
       '1', // isVertical
-      '4', // size
+      '4' // size
     ];
 
     const source = sourceCode;
@@ -333,26 +333,25 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });
   });
-
 
   it('fails if ship2 start is positioned out of bounds in y', async () => {
     const ship1 = [
       '5', // start.x
       '5', // start.y
       '0', // isVertical
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '3', // start.x
       '11', // start.y <-- out of bounds
       '1', // isVertical
-      '4', // size
+      '4' // size
     ];
 
     const source = sourceCode;
@@ -363,7 +362,7 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });
@@ -374,14 +373,14 @@ describe('ValidateBoard', () => {
       '9', // start.x
       '5', // start.y
       '0', // isVertical
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '4', // start.x
       '4', // start.y
       '1', // isVertical
-      '4', // size
+      '4' // size
     ];
 
     const source = sourceCode;
@@ -392,7 +391,7 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });
@@ -403,14 +402,14 @@ describe('ValidateBoard', () => {
       '5', // start.x
       '9', // start.y
       '1', // isVertical
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '4', // start.x
       '4', // start.y
       '1', // isVertical
-      '4', // size
+      '4' // size
     ];
 
     await expect({
@@ -419,7 +418,7 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });
@@ -430,14 +429,14 @@ describe('ValidateBoard', () => {
       '5', // start.x
       '5', // start.y
       '1', // isVertical
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '8', // start.x
       '4', // start.y
       '0', // isVertical
-      '4', // size
+      '4' // size
     ];
 
     await expect({
@@ -446,7 +445,7 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });
@@ -457,14 +456,14 @@ describe('ValidateBoard', () => {
       '5', // start.x
       '5', // start.y
       '1', // isVertical
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '4', // start.x
       '8', // start.y
       '1', // isVertical
-      '4', // size
+      '4' // size
     ];
 
     await expect({
@@ -473,7 +472,7 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });
@@ -484,14 +483,14 @@ describe('ValidateBoard', () => {
       '5', // start.x
       '5', // start.y
       '3', // isVertical <-- not a bit
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '4', // start.x
       '8', // start.y
       '1', // isVertical
-      '4', // size
+      '4' // size
     ];
 
     await expect({
@@ -500,7 +499,7 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });
@@ -511,14 +510,14 @@ describe('ValidateBoard', () => {
       '5', // start.x
       '5', // start.y
       '0', // isVertical
-      '2', // size
+      '2' // size
     ];
 
     const ship2 = [
       '4', // start.x
       '8', // start.y
       '123', // isVertical <-- not a bit
-      '4', // size
+      '4' // size
     ];
 
     await expect({
@@ -527,7 +526,7 @@ describe('ValidateBoard', () => {
         ship1,
         ship2
       }
-    }).toCircomExecWithSignalsAndErrorThat((e) => {
+    }).toCircomExecWithErrorThat((e) => {
       expect(e.message).toMatch(/Assert Failed/);
       expect(e.message).toMatch(/ValidateBoard/);
     });

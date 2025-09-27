@@ -6,7 +6,11 @@
   "private": false,
   "scripts": {
     "tool": "tsx ./tooling/run.ts",
-    "test": "pnpm vitest run"
+    "test": "pnpm vitest run",
+    "lint": "pnpm --fix eslint .",
+    "lint:check": "pnpm eslint .",
+    "fmt": "prettier --cache --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts,md,json}\"",
+    "fmt:check": "prettier --cache --check \"**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts,md,json}\""
   },
   "dependencies": {
     "@solose-ts/como-circulo": "workspace:*",
@@ -19,13 +23,17 @@
     "zx": "^8.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.36.0",
     "@solose-ts/vitest-circom": "workspace:*",
     "@types/node": "^24.3.3",
     "@types/yargs": "^17.0.33",
     "dedent": "^1.7.0",
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2",
     "tshy": "^3.0.2",
     "tsx": "^4.20.5",
     "typescript": "^5",
+    "typescript-eslint": "^8.44.1",
     "vitest": "^3.2.4"
   }
 }

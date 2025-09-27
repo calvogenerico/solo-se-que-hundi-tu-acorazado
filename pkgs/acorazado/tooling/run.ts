@@ -14,7 +14,6 @@ import { addVerify } from "./commands/verify.ts";
 import { addRunTest } from "./commands/run-test.ts";
 import { addRunErrorTest } from "./commands/run-error-test.ts";
 import { addRunFailTest } from "./commands/run-fail-test.ts";
-import { addRunAllTests } from "./commands/test-all.ts";
 import { addHashBoard } from "./commands/hash-board.ts";
 import { addRunCmd } from "./commands/run-cmd.ts";
 import { addFullRunCmd } from "./commands/full-run.ts";
@@ -37,7 +36,6 @@ const allCommands = [
   addRunTest,
   addRunFailTest,
   addRunErrorTest,
-  addRunAllTests,
   addHashBoard,
   addRunCmd,
   addFullRunCmd

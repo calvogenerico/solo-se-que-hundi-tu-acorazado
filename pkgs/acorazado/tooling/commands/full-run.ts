@@ -1,5 +1,5 @@
 import type { AddCmd } from "../cli.ts";
-import { circuitOutDir, compile } from "./compile.ts";
+import { compile } from "./compile.ts";
 import { generateMainInputs } from "./generate-input.ts";
 import { witness } from "./witness.ts";
 import { zkeyGen } from "./zkey-generate.ts";

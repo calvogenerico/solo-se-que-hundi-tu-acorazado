@@ -47,7 +47,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 2, y: 2}),
         expectedHit: '0'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('hits when targets exactly the start of the ship', async () => {
@@ -58,7 +58,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 2, y: 3}),
         expectedHit: '1'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('hits when targets exactly position under start for vertical ship', async () => {
@@ -69,7 +69,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 1, y: 2}),
         expectedHit: '1'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
 
@@ -81,7 +81,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 1, y: 3}),
         expectedHit: '1'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('does not hit when aims under vertical ship', async () => {
@@ -92,7 +92,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 1, y: 4}),
         expectedHit: '0'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('does not hit when aims on top of vertical ship', async () => {
@@ -103,7 +103,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 1, y: 0}),
         expectedHit: '0'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('hits when aims to start of horizontal ship', async () => {
@@ -114,7 +114,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 1, y: 1}),
         expectedHit: '1'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('hits when aims to middle of horizontal ship', async () => {
@@ -125,7 +125,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 2, y: 1}),
         expectedHit: '1'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('hits when aims to end of horizontal ship', async () => {
@@ -136,7 +136,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 3, y: 1}),
         expectedHit: '1'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('does not hit when aims at the right of horizontal ship', async () => {
@@ -147,7 +147,7 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 4, y: 1}),
         expectedHit: '0'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 
   it('does not hit when aims at the left of horizontal ship', async () => {
@@ -158,6 +158,6 @@ describe('HitBoat template', () => {
         hit: pointSignals({x: 0, y: 1}),
         expectedHit: '0'
       }
-    }).toCircomExecOkWithSignals()
+    }).toCircomExecOk()
   });
 });
