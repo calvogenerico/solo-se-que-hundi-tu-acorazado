@@ -14,9 +14,9 @@ function assertCircuitSignalValue(obj: unknown, keyName: string, path: string[])
   if (typeof obj === 'string') {
     if (!/^0-9+$/.test(obj)) {
       return;
-    } 
+    }
     throw new TypeError(`Invalid circom signals. Not numeric value at :${newPath}`);
-    
+
   }
 
   if (typeof obj === 'number') {
@@ -155,10 +155,8 @@ async function compileWithError(sourceCode: string, handler: (e: CircomCompileEr
   });
 }
 
-async function execWithError(sourceCode: unknown, signals: CircuitSignals, handler: (e: CircomRuntimeError) => void | Promise<void>): Promise<ExpectationResult> {
-  if (typeof sourceCode !== 'string') {
-    throw new TypeError(`Expected to receive a string with valid circom source code. Receieved: ${sourceCode}`);
-  }
+async function execWithError(received: unknown, handler: (e: CircomRuntimeError) => (void | Promise<void>)): Promise<ExpectationResult> {
+  const input = parseCodeAndSignals(received, 'received');
 
   const onRuntimeError = async (err: CircomRuntimeError) => {
     await handler(err);
@@ -176,8 +174,8 @@ async function execWithError(sourceCode: unknown, signals: CircuitSignals, handl
   };
 
   return wrap(async (compiler) => {
-    const circuit = await compiler.compileStr(sourceCode);
-    await circuit.witness(signals);
+    const circuit = await compiler.compileStr(input.source);
+    await circuit.witness(input.signals);
   }, {
     onCompileError: failOnCompileError,
     onRuntimeError,
@@ -223,11 +221,11 @@ expect.extend({
   },
   toCircomExecWithError: async (received: unknown) => {
     const input = parseCodeAndSignals(received, 'received');
-    return execWithError(input, {}, async () => {
+    return execWithError(input, async () => {
     });
   },
   toCircomExecWithErrorThat: async (received: unknown, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
-    const input = parseCodeAndSignals(received, 'received');
-    return execWithError(input.source, {}, handler);
+
+    return execWithError(received, handler);
   }
 });

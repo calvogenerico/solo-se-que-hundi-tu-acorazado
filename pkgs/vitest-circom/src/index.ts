@@ -13,7 +13,7 @@ declare module 'vitest' {
   interface Assertion<T = any> {
     toCircomExecOk: () => Promise<T>
     toCircomExecAndOutputs: (expectedSignals: string[]) => Promise<T>
-    toCircomExecAndThat: (signalHandler: (signals: string[]) => void | Promise<void>) => Promise<T>
+    toCircomExecAndOutputThat: (signalHandler: (signals: string[]) => void | Promise<void>) => Promise<T>
     toCircomCompileError: () => Promise<T>
     toCircomCompileErrorThat: (handler: (e: CircomCompileError) => void | Promise<void>) => Promise<T>
     toCircomExecWithError: () => Promise<T>

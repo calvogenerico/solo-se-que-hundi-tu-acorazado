@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CircomCompileError, CircomRuntimeError } from '@solose-ts/como-circulo';
 import dedent from 'dedent';
 
 describe('circom matchers', () => {
@@ -169,5 +170,203 @@ describe('circom matchers', () => {
       }).toCircomExecAndOutputs(['101', '102']);
     });
 
+    it('fails with right error if fails at compile time', async () => {
+      try {
+        await expect(dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            input signal input1 // missing semicolon
+          }
+          component main = Test();
+        `).toCircomExecAndOutputs([]);
+      } catch (e) {
+        const erorr = e as Error;
+        expect(erorr.message).toMatch(/^CompileError:/)
+        return
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('fails with right error if fails at runtime', async () => {
+      try {
+        await expect(dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            1 === 2;
+          }
+          component main = Test();
+        `).toCircomExecAndOutputs([]);
+      } catch (e) {
+        const erorr = e as Error;
+        expect(erorr.message).toMatch(/^RuntimeError:/)
+        return
+      }
+      expect.fail('Should have thrown');
+    });
+  });
+
+  describe('#toCircomExecAndOutputThat', () => {
+    it('Sends the error to generate assertions', async () => {
+      await expect({
+        source: dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            input signal a;
+            signal output b <== 2;
+          }
+          component main{public [a]} = Test();
+        `,
+        signals: {
+          a: '10'
+        }
+      }).toCircomExecAndOutputThat((signals) => {
+        expect(signals).toEqual(['2', '10'])
+      });
+    });
+  });
+
+  describe('#toCircomCompileError', () => {
+    it('fails when it does not throw', async () => {
+      try {
+        await expect(dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            1 === 1;
+          }
+          component main = Test();
+        `).toCircomCompileError();
+      } catch (e) {
+        const erorr = e as Error;
+        expect(erorr.message).toEqual('Expected to fail to compile, but compilation went ok');
+        return
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('pass when circuit does not compile ok', async () => {
+      await expect(
+        dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            1 === 1 // Missing semicolon
+          }
+          component main = Test();
+        `
+      ).toCircomCompileError();
+    });
+  });
+
+  describe('#toCircomCompileErrorThat', () => {
+    it('When there is a compile error it sends the error to the block', async () => {
+      await expect(dedent`
+        pragma circom 2.2.2;
+        template Test() {
+          1 === 1 // Missign semicolon
+        }
+        component main = Test();
+      `).toCircomCompileErrorThat(async (e) => {
+        expect(e).toBeInstanceOf(CircomCompileError)
+        expect(e.message).toMatch('Missing semicolon');
+      });
+    })
+  });
+
+  describe('#toCircomExecWithError', () => {
+    it('passes when there is a runtime error', async () => {
+      await expect(dedent`
+        pragma circom 2.2.2;
+        template Test() {
+          1 === 2;
+        }
+        component main = Test();
+      `).toCircomExecWithError();
+    });
+
+    it('fails when there is a compile error', async () => {
+      let success = true;
+      try {
+        await expect(dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            1 === 2 // Missing semicolon
+          }
+          component main = Test();
+        `).toCircomExecWithError();
+        success = false;
+      } catch (e) {
+        expect((e as Error).message).toMatch(/^CompileError:/)
+      }
+      expect(success).toBe(true);
+    });
+
+    it('fails when there is no error', async () => {
+      let success = true;
+      try {
+        await expect(dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            1 === 1;
+          }
+          component main = Test();
+        `).toCircomExecWithError();
+        success = false;
+      } catch (e) {
+        expect((e as Error).message).toEqual('Expected to fail to execute, but execution went ok')
+      }
+      expect(success).toBe(true);
+    });
+  });
+
+  describe('#toCircomExecWithErrorThat', () => {
+    it('passes when there is a runtime error', async () => {
+      await expect(dedent`
+        pragma circom 2.2.2;
+        template Test() {
+          1 === 2;
+        }
+        component main = Test();
+      `).toCircomExecWithErrorThat((e) => {
+        expect(e).toBeInstanceOf(CircomRuntimeError);
+        expect(e.message).toMatch('Assert Failed. Error in template Test_0 line: 3');
+      });
+    });
+
+    it('fails when there is a compile error', async () => {
+      let success = true;
+      try {
+        await expect(dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            1 === 2 // Missing semicolon
+          }
+          component main = Test();
+        `).toCircomExecWithErrorThat(() => {
+          expect.fail('Should not execute')
+        });
+        success = false;
+      } catch (e) {
+        expect((e as Error).message).toMatch(/^CompileError:/)
+      }
+      expect(success).toBe(true);
+    });
+
+    it('fails when there is no error', async () => {
+      let success = true;
+      try {
+        await expect(dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            1 === 1;
+          }
+          component main = Test();
+        `).toCircomExecWithErrorThat(() => {
+          expect.fail('Should not execute')
+        });
+        success = false;
+      } catch (e) {
+        expect((e as Error).message).toEqual('Expected to fail to execute, but execution went ok')
+      }
+      expect(success).toBe(true);
+    });
   });
 });
