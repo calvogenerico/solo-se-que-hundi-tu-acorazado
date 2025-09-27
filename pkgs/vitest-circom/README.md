@@ -58,4 +58,4 @@ interface Assertion<T = any> {
 }
 ```
 
-You can find example of how to use them in the [test folder](./tests)
+You can find example of how to use them in the [test suite](./tests/matchers.test.ts)
