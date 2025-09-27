@@ -50,7 +50,7 @@ describe('circom matchers', () => {
         }
         component main = Test();
     `,
-        signals: { a: '5'}
+        signals: {a: '5'}
       }).toCircomExecOk();
     });
 
@@ -88,6 +88,41 @@ describe('circom matchers', () => {
           aColor: '3'
         }
       }).toCircomExecOk();
+    });
+  });
+
+  describe('#toCircomExecAndOutputs', () => {
+    it('returns empty results for a circuit with no outputs', () => {
+      expect(dedent`
+        pragma circom 2.2.2;
+        template Test() {}
+        component main = Test();
+      `).toCircomExecAndOutputs([]);
+    });
+
+    it('returns outputs of the circuit', () => {
+      expect(dedent`
+        pragma circom 2.2.2;
+        template Test() {
+          output signal a = 1;
+          output signal b = 123;
+        }
+        component main = Test();
+      `).toCircomExecAndOutputs(['1', '123']);
+    });
+
+    it('returns list of public inputs when no outputs', () => {
+      expect({
+        source: dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            input signal input1;
+            input signal input2;
+          }
+          component main{public [input1]} = Test();
+        `,
+        signals: ['200', '201']
+      }).toCircomExecAndOutputs(['200']);
     });
   });
 });
