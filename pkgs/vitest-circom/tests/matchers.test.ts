@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 import { CircomCompileError, CircomRuntimeError } from '@solose-ts/como-circulo';
 import dedent from 'dedent';
 
@@ -51,7 +51,7 @@ describe('circom matchers', () => {
         }
         component main = Test();
     `,
-        signals: {a: '5'}
+        signals: { a: '5' }
       }).toCircomExecOk();
     });
 
@@ -79,11 +79,7 @@ describe('circom matchers', () => {
         component main = Test();
     `,
         signals: {
-          aBoat: [
-            '1',
-            '2',
-            '3'
-          ],
+          aBoat: ['1', '2', '3'],
           x: '1',
           y: '2',
           aColor: '3'
@@ -146,7 +142,7 @@ describe('circom matchers', () => {
         signals: {
           input1: '100',
           input2: '101',
-          input3: '102',
+          input3: '102'
         }
       }).toCircomExecAndOutputs(['200', '201', '101', '102']);
     });
@@ -165,7 +161,7 @@ describe('circom matchers', () => {
         signals: {
           input1: '100',
           input2: '101',
-          input3: '102',
+          input3: '102'
         }
       }).toCircomExecAndOutputs(['101', '102']);
     });
@@ -181,8 +177,8 @@ describe('circom matchers', () => {
         `).toCircomExecAndOutputs([]);
       } catch (e) {
         const erorr = e as Error;
-        expect(erorr.message).toMatch(/^CompileError:/)
-        return
+        expect(erorr.message).toMatch(/^CompileError:/);
+        return;
       }
       expect.fail('Should have thrown');
     });
@@ -198,8 +194,8 @@ describe('circom matchers', () => {
         `).toCircomExecAndOutputs([]);
       } catch (e) {
         const erorr = e as Error;
-        expect(erorr.message).toMatch(/^RuntimeError:/)
-        return
+        expect(erorr.message).toMatch(/^RuntimeError:/);
+        return;
       }
       expect.fail('Should have thrown');
     });
@@ -220,7 +216,7 @@ describe('circom matchers', () => {
           a: '10'
         }
       }).toCircomExecAndOutputThat((signals) => {
-        expect(signals).toEqual(['2', '10'])
+        expect(signals).toEqual(['2', '10']);
       });
     });
   });
@@ -238,7 +234,7 @@ describe('circom matchers', () => {
       } catch (e) {
         const erorr = e as Error;
         expect(erorr.message).toEqual('Expected to fail to compile, but compilation went ok');
-        return
+        return;
       }
       expect.fail('Should have thrown');
     });
@@ -265,10 +261,10 @@ describe('circom matchers', () => {
         }
         component main = Test();
       `).toCircomCompileErrorThat(async (e) => {
-        expect(e).toBeInstanceOf(CircomCompileError)
+        expect(e).toBeInstanceOf(CircomCompileError);
         expect(e.message).toMatch('Missing semicolon');
       });
-    })
+    });
   });
 
   describe('#toCircomExecWithError', () => {
@@ -294,7 +290,7 @@ describe('circom matchers', () => {
         `).toCircomExecWithError();
         success = false;
       } catch (e) {
-        expect((e as Error).message).toMatch(/^CompileError:/)
+        expect((e as Error).message).toMatch(/^CompileError:/);
       }
       expect(success).toBe(true);
     });
@@ -311,7 +307,7 @@ describe('circom matchers', () => {
         `).toCircomExecWithError();
         success = false;
       } catch (e) {
-        expect((e as Error).message).toEqual('Expected to fail to execute, but execution went ok')
+        expect((e as Error).message).toEqual('Expected to fail to execute, but execution went ok');
       }
       expect(success).toBe(true);
     });
@@ -341,11 +337,11 @@ describe('circom matchers', () => {
           }
           component main = Test();
         `).toCircomExecWithErrorThat(() => {
-          expect.fail('Should not execute')
+          expect.fail('Should not execute');
         });
         success = false;
       } catch (e) {
-        expect((e as Error).message).toMatch(/^CompileError:/)
+        expect((e as Error).message).toMatch(/^CompileError:/);
       }
       expect(success).toBe(true);
     });
@@ -360,13 +356,159 @@ describe('circom matchers', () => {
           }
           component main = Test();
         `).toCircomExecWithErrorThat(() => {
-          expect.fail('Should not execute')
+          expect.fail('Should not execute');
         });
         success = false;
       } catch (e) {
-        expect((e as Error).message).toEqual('Expected to fail to execute, but execution went ok')
+        expect((e as Error).message).toEqual('Expected to fail to execute, but execution went ok');
       }
       expect(success).toBe(true);
+    });
+  });
+
+  describe('signal validation', () => {
+    it('can pass bigints', async () => {
+      await expect({
+        source: `
+            pragma circom 2.2.2;
+            template Test() {
+              input signal a;
+            }
+            component main = Test();
+          `,
+        signals: {
+          a: 10n
+        }
+      }).toCircomExecOk();
+    });
+
+    it('fails when numeric string', async () => {
+      try {
+        await expect({
+          source: `
+            pragma circom 2.2.2;
+            template Test() {
+              input signal a;
+            }
+            component main = Test();
+          `,
+          signals: {
+            a: 'this is not a number'
+          }
+        }).toCircomExecOk();
+      } catch (e) {
+        expect((e as Error).message).toEqual('Invalid circom signals. Not numeric value at: a');
+        return;
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('fails when number instead of bigint or numberic string', async () => {
+      try {
+        await expect({
+          source: `
+            pragma circom 2.2.2;
+            template Test() {
+              input signal a;
+            }
+            component main = Test();
+          `,
+          signals: {
+            a: 1
+          }
+        }).toCircomExecOk();
+      } catch (e) {
+        expect((e as Error).message).toEqual(
+          'Invalid circom signals. Found number found at: a. Please use bigints or numeric strings'
+        );
+        return;
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('fails when a signal is an invalid object type', async () => {
+      try {
+        await expect({
+          source: `
+            pragma circom 2.2.2;
+            template Test() {
+              input signal a;
+            }
+            component main = Test();
+          `,
+          signals: {
+            a: function () {}
+          }
+        }).toCircomExecOk();
+      } catch (e) {
+        expect((e as Error).message).toEqual('Invalid circom signals. Found invalid object at: a');
+        return;
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('fails when a signal is null', async () => {
+      try {
+        await expect({
+          source: `
+            pragma circom 2.2.2;
+            template Test() {
+              input signal a;
+            }
+            component main = Test();
+          `,
+          signals: {
+            a: null
+          }
+        }).toCircomExecOk();
+      } catch (e) {
+        expect((e as Error).message).toEqual('Invalid signales. Found null at: a');
+        return;
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('fails when a signals object is not an object', async () => {
+      try {
+        await expect({
+          source: `
+            pragma circom 2.2.2;
+            template Test() {
+              input signal a;
+            }
+            component main = Test();
+          `,
+          signals: () => {}
+        }).toCircomExecOk();
+      } catch (e) {
+        expect((e as Error).message).toMatch(/^Invalid signals. Expected object \(\) => \{\s*\}/);
+        return;
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('fails when a code and signals object is null', async () => {
+      try {
+        await expect(null).toCircomExecOk();
+      } catch (e) {
+        expect((e as Error).message).toEqual("expected received to be CodeAndSignals but it's not");
+        return;
+      }
+      expect.fail('Should have thrown');
+    });
+
+    it('fails when a source is not a string', async () => {
+      try {
+        await expect({
+          source: null
+        }).toCircomExecOk();
+      } catch (e) {
+        expect((e as Error).message).toEqual(
+          'Expected to receive a string with valid circom source code. Receieved: null'
+        );
+        return;
+      }
+      expect.fail('Should have thrown');
     });
   });
 });

@@ -1,26 +1,27 @@
-import { expect, inject } from "vitest";
-import { CircomCompileError, CircomCompiler, CircomRuntimeError, type CircuitSignals } from "@solose-ts/como-circulo";
-import { type ExpectationResult } from "@vitest/expect";
-import * as path from "node:path";
-import * as os from "node:os";
+import { expect, inject } from 'vitest';
+import { CircomCompileError, CircomCompiler, CircomRuntimeError, type CircuitSignals } from '@solose-ts/como-circulo';
+import { type ExpectationResult } from '@vitest/expect';
+import * as path from 'node:path';
+import * as os from 'node:os';
 
 type CodeAndSignals = {
-  source: string,
-  signals: CircuitSignals,
-}
+  source: string;
+  signals: CircuitSignals;
+};
 
 function assertCircuitSignalValue(obj: unknown, keyName: string, path: string[]): asserts obj is keyof CircuitSignals {
   const newPath = [...path, keyName];
   if (typeof obj === 'string') {
-    if (!/^0-9+$/.test(obj)) {
+    if (/^[0-9]+$/.test(obj)) {
       return;
     }
-    throw new TypeError(`Invalid circom signals. Not numeric value at :${newPath}`);
-
+    throw new TypeError(`Invalid circom signals. Not numeric value at: ${newPath.join('>')}`);
   }
 
   if (typeof obj === 'number') {
-    throw new TypeError(`Invalid circom signals. Found number found at :${newPath}. Please use bigints or numeric strings`);
+    throw new TypeError(
+      `Invalid circom signals. Found number found at: ${newPath.join('>')}. Please use bigints or numeric strings`
+    );
   }
 
   if (typeof obj === 'object') {
@@ -32,23 +33,24 @@ function assertCircuitSignalValue(obj: unknown, keyName: string, path: string[])
     return;
   }
 
-  throw TypeError(`Invalid circom signals. Found invalid object at ${newPath}`);
+  throw TypeError(`Invalid circom signals. Found invalid object at: ${newPath.join('>')}`);
 }
 
 function assertCircuitSignals(obj: unknown, path: string[]): asserts obj is CircuitSignals {
   if (obj === null) {
-    throw TypeError(`Invalid signales. Found null at ${path}`);
+    throw TypeError(`Invalid signales. Found null at: ${path.join('>')}`);
   }
   if (typeof obj !== 'object') {
-    throw TypeError(`Invalid signals at ${path}`);
+    const msg = path.length === 0 ? `Invalid signals. Expected object ${obj}` : `Invalid signals at: ${path.join('>')}`;
+    throw TypeError(msg);
   }
 
-  [...Object.entries(obj)].map(([key, value]) => assertCircuitSignalValue(value, key, path)).every(v => v);
+  [...Object.entries(obj)].map(([key, value]) => assertCircuitSignalValue(value, key, path)).every((v) => v);
 }
 
 function parseCodeAndSignals(input: unknown, name: string): CodeAndSignals {
   if (typeof input === 'string') {
-    return {signals: {}, source: input};
+    return { signals: {}, source: input };
   }
 
   if (typeof input !== 'object' || input === null || !input) {
@@ -61,7 +63,7 @@ function parseCodeAndSignals(input: unknown, name: string): CodeAndSignals {
   assertString(casted.source);
   assertCircuitSignals(casted.signals, []);
 
-  return {signals: casted.signals, source: casted.source};
+  return { signals: casted.signals, source: casted.source };
 }
 
 function assertString(input: unknown): asserts input is string {
@@ -72,13 +74,13 @@ function assertString(input: unknown): asserts input is string {
 
 type CompileErrorHandler = (err: CircomCompileError) => Promise<ExpectationResult> | ExpectationResult;
 type RuntimeErrorHandler = (err: CircomRuntimeError) => Promise<ExpectationResult> | ExpectationResult;
-type SuccessHandler = () => Promise<ExpectationResult> | ExpectationResult
+type SuccessHandler = () => Promise<ExpectationResult> | ExpectationResult;
 
 type WrapOpts = {
   onCompileError?: CompileErrorHandler;
   onRuntimeError?: RuntimeErrorHandler;
   onSuccess?: SuccessHandler;
-}
+};
 
 const libOptions = inject('__vitestCircom_options');
 
@@ -131,7 +133,10 @@ const defaultHandlers = {
   onSuccess: returnSuccess
 };
 
-async function compileWithError(sourceCode: string, handler: (e: CircomCompileError) => Promise<void> | void): Promise<ExpectationResult> {
+async function compileWithError(
+  sourceCode: string,
+  handler: (e: CircomCompileError) => Promise<void> | void
+): Promise<ExpectationResult> {
   const onCompileError = async (err: CircomCompileError) => {
     await handler(err);
     return {
@@ -147,15 +152,21 @@ async function compileWithError(sourceCode: string, handler: (e: CircomCompileEr
     };
   };
 
-  return wrap(async (compiler) => {
-    await compiler.compileStr(sourceCode);
-  }, {
-    onCompileError,
-    onSuccess: failOnSuccess
-  });
+  return wrap(
+    async (compiler) => {
+      await compiler.compileStr(sourceCode);
+    },
+    {
+      onCompileError,
+      onSuccess: failOnSuccess
+    }
+  );
 }
 
-async function execWithError(received: unknown, handler: (e: CircomRuntimeError) => (void | Promise<void>)): Promise<ExpectationResult> {
+async function execWithError(
+  received: unknown,
+  handler: (e: CircomRuntimeError) => void | Promise<void>
+): Promise<ExpectationResult> {
   const input = parseCodeAndSignals(received, 'received');
 
   const onRuntimeError = async (err: CircomRuntimeError) => {
@@ -173,14 +184,17 @@ async function execWithError(received: unknown, handler: (e: CircomRuntimeError)
     };
   };
 
-  return wrap(async (compiler) => {
-    const circuit = await compiler.compileStr(input.source);
-    await circuit.witness(input.signals);
-  }, {
-    onCompileError: failOnCompileError,
-    onRuntimeError,
-    onSuccess
-  });
+  return wrap(
+    async (compiler) => {
+      const circuit = await compiler.compileStr(input.source);
+      await circuit.witness(input.signals);
+    },
+    {
+      onCompileError: failOnCompileError,
+      onRuntimeError,
+      onSuccess
+    }
+  );
 }
 
 expect.extend({
@@ -212,8 +226,7 @@ expect.extend({
   },
   toCircomCompileError: async (received: unknown) => {
     const input = parseCodeAndSignals(received, 'received');
-    return compileWithError(input.source, async () => {
-    });
+    return compileWithError(input.source, async () => {});
   },
   toCircomCompileErrorThat: async (received: unknown, handler: (e: CircomCompileError) => void | Promise<void>) => {
     const input = parseCodeAndSignals(received, 'received');
@@ -221,11 +234,9 @@ expect.extend({
   },
   toCircomExecWithError: async (received: unknown) => {
     const input = parseCodeAndSignals(received, 'received');
-    return execWithError(input, async () => {
-    });
+    return execWithError(input, async () => {});
   },
   toCircomExecWithErrorThat: async (received: unknown, handler: (e: CircomRuntimeError) => void | Promise<void>) => {
-
     return execWithError(received, handler);
   }
 });
