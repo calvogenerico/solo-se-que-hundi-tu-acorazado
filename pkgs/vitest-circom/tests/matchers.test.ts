@@ -92,27 +92,27 @@ describe('circom matchers', () => {
   });
 
   describe('#toCircomExecAndOutputs', () => {
-    it('returns empty results for a circuit with no outputs', () => {
-      expect(dedent`
+    it('returns empty results for a circuit with no outputs', async () => {
+      await expect(dedent`
         pragma circom 2.2.2;
         template Test() {}
         component main = Test();
       `).toCircomExecAndOutputs([]);
     });
 
-    it('returns outputs of the circuit', () => {
-      expect(dedent`
+    it('returns outputs of the circuit', async () => {
+      await expect(dedent`
         pragma circom 2.2.2;
         template Test() {
-          output signal a = 1;
-          output signal b = 123;
+          output signal a <== 1;
+          output signal b <== 123;
         }
         component main = Test();
       `).toCircomExecAndOutputs(['1', '123']);
     });
 
-    it('returns list of public inputs when no outputs', () => {
-      expect({
+    it('returns list of public inputs when no outputs', async () => {
+      await expect({
         source: dedent`
           pragma circom 2.2.2;
           template Test() {
@@ -121,8 +121,53 @@ describe('circom matchers', () => {
           }
           component main{public [input1]} = Test();
         `,
-        signals: ['200', '201']
+        signals: {
+          input1: '200',
+          input2: '201'
+        }
       }).toCircomExecAndOutputs(['200']);
     });
+
+    it('when outputs and public inputs it list first the outputs and then the public inputs', async () => {
+      await expect({
+        source: dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            input signal input1;
+            input signal input2;
+            input signal input3;
+
+            output signal out1 <== 200;
+            output signal out2 <== 201;
+          }
+          component main{public [input2, input3]} = Test();
+        `,
+        signals: {
+          input1: '100',
+          input2: '101',
+          input3: '102',
+        }
+      }).toCircomExecAndOutputs(['200', '201', '101', '102']);
+    });
+
+    it('uses the public inputs order of declaration in the template', async () => {
+      await expect({
+        source: dedent`
+          pragma circom 2.2.2;
+          template Test() {
+            input signal input1;
+            input signal input2;
+            input signal input3;
+          }
+          component main{public [input3, input2]} = Test();
+        `,
+        signals: {
+          input1: '100',
+          input2: '101',
+          input3: '102',
+        }
+      }).toCircomExecAndOutputs(['101', '102']);
+    });
+
   });
 });
